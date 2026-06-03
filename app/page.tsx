@@ -9,7 +9,7 @@ import { SOBRE, COMODIDADES, REGRAS, HORARIOS, CONTATO } from "@/lib/conteudo";
 import {
   fotosHero,
   fotosParque,
-  fotosEstrutura,
+  fotosCamping,
   fotosBarracas,
   fotosPousada,
   fotosGaleria,
@@ -33,7 +33,7 @@ const MODALIDADES_BLOCO = [
     titulo: "Camping",
     texto:
       "Traga sua barraca e escolha entre as 5 áreas espalhadas pela mata, com pontos de energia 220v, cozinha comunitária, lava-pratos e muito verde ao redor.",
-    fotos: fotosEstrutura,
+    fotos: fotosCamping,
   },
   {
     id: "barracas" as ModalidadeId,
@@ -109,7 +109,7 @@ export default function Home() {
                 ))}
               </dl>
             </div>
-            <Galeria fotos={fotosParque} modo="mosaico" />
+            <Galeria fotos={fotosParque} modo="mosaico" colunas="grid-cols-2" />
           </div>
         </section>
 

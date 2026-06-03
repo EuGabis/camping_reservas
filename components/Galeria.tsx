@@ -12,9 +12,11 @@ export interface Foto {
 export default function Galeria({
   fotos,
   modo = "mosaico",
+  colunas = "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4",
 }: {
   fotos: Foto[];
   modo?: "mosaico" | "faixa";
+  colunas?: string;
 }) {
   const [indice, setIndice] = useState<number | null>(null);
   const [montado, setMontado] = useState(false);
@@ -51,34 +53,26 @@ export default function Galeria({
 
   if (total === 0) return null;
 
-  // padrão "bento": algumas fotos ocupam mais espaço, criando ritmo visual
-  const destaque = (i: number) => {
-    const m = i % 7;
-    if (m === 0) return "col-span-2 row-span-2";
-    if (m === 4) return "row-span-2";
-    return "";
-  };
-
   return (
     <>
       {modo === "mosaico" ? (
-        <div className="grid auto-rows-[140px] grid-cols-2 gap-3 sm:auto-rows-[170px] md:grid-cols-3 lg:grid-cols-4">
+        <div className={`grid gap-3 ${colunas}`}>
           {fotos.map((f, i) => (
             <button
               key={f.src}
               type="button"
               onClick={() => setIndice(i)}
               aria-label={`Ampliar: ${f.alt}`}
-              className={`group relative overflow-hidden rounded-2xl bg-mata-800/10 ${destaque(i)}`}
+              className="group relative aspect-[4/3] overflow-hidden rounded-xl bg-mata-800/10 ring-1 ring-black/5"
             >
               <Image
                 src={f.src}
                 alt={f.alt}
                 fill
                 sizes="(max-width:768px) 50vw, 25vw"
-                className="object-cover transition-transform duration-700 group-hover:scale-110"
+                className="object-cover transition-transform duration-700 group-hover:scale-105"
               />
-              <span className="absolute inset-0 bg-mata-900/0 transition-colors duration-300 group-hover:bg-mata-900/25" />
+              <span className="absolute inset-0 bg-mata-900/0 transition-colors duration-300 group-hover:bg-mata-900/20" />
             </button>
           ))}
         </div>
