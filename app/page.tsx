@@ -1,18 +1,55 @@
-import Image from "next/image";
 import Cabecalho from "@/components/Cabecalho";
 import Rodape from "@/components/Rodape";
 import BotaoWhatsapp from "@/components/BotaoWhatsapp";
 import FormularioReserva from "@/components/FormularioReserva";
-import FotoZoom from "@/components/FotoZoom";
-import { ACOMODACOES, centavosParaReais } from "@/lib/precos";
+import Carrossel from "@/components/Carrossel";
+import Galeria from "@/components/Galeria";
+import { ACOMODACOES, ModalidadeId, centavosParaReais } from "@/lib/precos";
+import { SOBRE, COMODIDADES, REGRAS, HORARIOS, CONTATO } from "@/lib/conteudo";
 import {
-  SOBRE,
-  COMODIDADES,
-  REGRAS,
-  HORARIOS,
-  CONTATO,
-  FOTOS,
-} from "@/lib/conteudo";
+  fotosHero,
+  fotosParque,
+  fotosEstrutura,
+  fotosBarracas,
+  fotosPousada,
+  fotosGaleria,
+} from "@/lib/fotos";
+
+function aPartirDe(modalidade: ModalidadeId): string {
+  const valores = ACOMODACOES.filter((a) => a.modalidade === modalidade).map((a) => a.adultoSemana);
+  return centavosParaReais(Math.min(...valores));
+}
+
+const pousadaTodas = [
+  ...fotosPousada.suite,
+  ...fotosPousada.quartoVista,
+  ...fotosPousada.quartoCorredor,
+  ...fotosPousada.geral,
+];
+
+const MODALIDADES_BLOCO = [
+  {
+    id: "camping" as ModalidadeId,
+    titulo: "Camping",
+    texto:
+      "Traga sua barraca e escolha entre as 5 áreas espalhadas pela mata, com pontos de energia 220v, cozinha comunitária, lava-pratos e muito verde ao redor.",
+    fotos: fotosEstrutura,
+  },
+  {
+    id: "barracas" as ModalidadeId,
+    titulo: "Hotel de Barracas",
+    texto:
+      "A tenda já montada e estruturada esperando por você — a experiência do camping, sem precisar carregar nem armar nada.",
+    fotos: fotosBarracas,
+  },
+  {
+    id: "pousada" as ModalidadeId,
+    titulo: "Pousada Casa Camping",
+    texto:
+      "Suítes e quartos com vista para o verde, para quem prefere o conforto de quatro paredes com a natureza logo ali fora.",
+    fotos: pousadaTodas,
+  },
+];
 
 export default function Home() {
   return (
@@ -23,16 +60,9 @@ export default function Home() {
       <main id="topo">
         {/* ===== HERO ===== */}
         <section className="relative flex min-h-[92vh] items-center justify-center overflow-hidden">
-          <Image
-            src={FOTOS.hero}
-            alt="Mata nativa do Vapo Camping ao amanhecer"
-            fill
-            priority
-            sizes="100vw"
-            className="object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-mata-900/55 via-mata-900/30 to-mata-900/80" />
-          <div className="relative mx-auto max-w-3xl px-5 text-center text-areia-50">
+          <Carrossel slides={fotosHero} />
+          <div className="pointer-events-none absolute inset-0 z-10 bg-gradient-to-b from-mata-900/60 via-mata-900/35 to-mata-900/85" />
+          <div className="relative z-10 mx-auto max-w-3xl px-5 text-center text-areia-50">
             <p className="aparece mb-4 text-sm font-medium uppercase tracking-[0.25em] text-areia-200">
               São Roque · SP · a 60 km de São Paulo
             </p>
@@ -45,16 +75,10 @@ export default function Home() {
               campistas, para quem gosta de natureza de verdade.
             </p>
             <div className="aparece mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-              <a
-                href="#reservar"
-                className="rounded-full bg-terra-500 px-8 py-3.5 font-semibold text-white shadow-lg transition-transform hover:scale-105 hover:bg-terra-600"
-              >
+              <a href="#reservar" className="rounded-full bg-terra-500 px-8 py-3.5 font-semibold text-white shadow-lg transition-transform hover:scale-105 hover:bg-terra-600">
                 Fazer meu pedido de reserva
               </a>
-              <a
-                href="#hospedagem"
-                className="rounded-full border border-areia-100/60 px-8 py-3.5 font-semibold text-areia-50 backdrop-blur transition-colors hover:bg-areia-50/10"
-              >
+              <a href="#hospedagem" className="rounded-full border border-areia-100/60 px-8 py-3.5 font-semibold text-areia-50 backdrop-blur transition-colors hover:bg-areia-50/10">
                 Ver as acomodações
               </a>
             </div>
@@ -63,14 +87,10 @@ export default function Home() {
 
         {/* ===== SOBRE ===== */}
         <section id="sobre" className="mx-auto max-w-6xl px-5 py-20 sm:py-28">
-          <div className="grid items-center gap-12 md:grid-cols-2">
+          <div className="grid items-center gap-12 lg:grid-cols-2">
             <div>
-              <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-terra-500">
-                O parque
-              </p>
-              <h2 className="text-3xl text-mata-800 sm:text-4xl">
-                {SOBRE.chamada}
-              </h2>
+              <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-terra-500">O parque</p>
+              <h2 className="text-3xl text-mata-800 sm:text-4xl">{SOBRE.chamada}</h2>
               <div className="mt-6 space-y-4 text-lg leading-relaxed text-tinta-suave">
                 {SOBRE.paragrafos.map((p, i) => (
                   <p key={i}>{p}</p>
@@ -89,17 +109,7 @@ export default function Home() {
                 ))}
               </dl>
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="relative col-span-2 h-56 overflow-hidden rounded-xl2">
-                <FotoZoom src={FOTOS.lago} alt="Lago para pesca cercado de mata" sizes="(max-width:768px) 100vw, 40vw" />
-              </div>
-              <div className="relative h-44 overflow-hidden rounded-2xl">
-                <FotoZoom src={FOTOS.trilha} alt="Trilha pela mata nativa" sizes="(max-width:768px) 50vw, 20vw" />
-              </div>
-              <div className="relative h-44 overflow-hidden rounded-2xl">
-                <FotoZoom src={FOTOS.fogueira} alt="Fogueira ao entardecer no camping" sizes="(max-width:768px) 50vw, 20vw" />
-              </div>
-            </div>
+            <Galeria fotos={fotosParque} modo="mosaico" />
           </div>
         </section>
 
@@ -107,37 +117,33 @@ export default function Home() {
         <section id="hospedagem" className="bg-areia-100 py-20 sm:py-28">
           <div className="mx-auto max-w-6xl px-5">
             <div className="mx-auto max-w-2xl text-center">
-              <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-terra-500">
-                Onde ficar
-              </p>
-              <h2 className="text-3xl text-mata-800 sm:text-4xl">
-                Três jeitos de passar a noite na mata
-              </h2>
+              <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-terra-500">Onde ficar</p>
+              <h2 className="text-3xl text-mata-800 sm:text-4xl">Três jeitos de passar a noite na mata</h2>
               <p className="mt-4 text-lg text-tinta-suave">
-                Da barraca embaixo das estrelas ao conforto de uma suíte com vista —
-                escolha o seu.
+                Da barraca embaixo das estrelas ao conforto de uma suíte com vista — escolha o seu.
               </p>
             </div>
 
-            <div className="mt-12 grid gap-6 md:grid-cols-3">
-              {[
-                { foto: FOTOS.mata, titulo: "Camping", texto: "Traga sua barraca e fique numa das 5 áreas, com pontos de energia 220v, cozinha comunitária e lava-pratos.", preco: "A partir de R$ 54 /noite" },
-                { foto: FOTOS.barraca, titulo: "Hotel de Barracas", texto: "A tenda já montada e estruturada, para curtir o camping sem montar nada.", preco: "A partir de R$ 110 /noite" },
-                { foto: FOTOS.pousada, titulo: "Pousada Casa Camping", texto: "Quartos e suítes com vista para o verde, para quem prefere quatro paredes.", preco: "A partir de R$ 90 /noite" },
-              ].map((c) => (
-                <article key={c.titulo} className="group overflow-hidden rounded-xl2 bg-white shadow-sm ring-1 ring-areia-200 transition-shadow hover:shadow-lg">
-                  <div className="relative h-52 overflow-hidden">
-                    <FotoZoom src={c.foto} alt={c.titulo} sizes="(max-width:768px) 100vw, 33vw" className="object-cover transition-transform duration-500 group-hover/zoom:scale-105" />
-                  </div>
-                  <div className="p-6">
-                    <h3 className="text-xl text-mata-800">{c.titulo}</h3>
-                    <p className="mt-2 text-sm leading-relaxed text-tinta-suave">{c.texto}</p>
-                    <p className="mt-4 font-display text-lg font-semibold text-terra-500">{c.preco}</p>
-                    <a href="#reservar" className="mt-3 inline-block text-sm font-semibold text-mata-700 underline-offset-4 hover:underline">
-                      Reservar →
+            <div className="mt-14 space-y-16">
+              {MODALIDADES_BLOCO.map((m, idx) => (
+                <div key={m.id} className="grid items-center gap-8 lg:grid-cols-12">
+                  <div className={`lg:col-span-4 ${idx % 2 === 1 ? "lg:order-2" : ""}`}>
+                    <h3 className="font-display text-2xl text-mata-800 sm:text-3xl">{m.titulo}</h3>
+                    <p className="mt-3 leading-relaxed text-tinta-suave">{m.texto}</p>
+                    <p className="mt-5 font-display text-lg font-semibold text-terra-500">
+                      A partir de {aPartirDe(m.id)} <span className="text-sm font-normal text-tinta-suave">/ pessoa · noite</span>
+                    </p>
+                    <a href="#reservar" className="mt-5 inline-block rounded-full bg-mata-700 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-mata-800">
+                      Reservar {m.titulo}
                     </a>
+                    <p className="mt-3 text-xs text-tinta-suave">
+                      {m.fotos.length} fotos · toque para ampliar
+                    </p>
                   </div>
-                </article>
+                  <div className={`lg:col-span-8 ${idx % 2 === 1 ? "lg:order-1" : ""}`}>
+                    <Galeria fotos={m.fotos} modo="faixa" />
+                  </div>
+                </div>
               ))}
             </div>
           </div>
@@ -146,12 +152,8 @@ export default function Home() {
         {/* ===== ESTRUTURA ===== */}
         <section id="estrutura" className="mx-auto max-w-6xl px-5 py-20 sm:py-28">
           <div className="mx-auto max-w-2xl text-center">
-            <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-terra-500">
-              Estrutura
-            </p>
-            <h2 className="text-3xl text-mata-800 sm:text-4xl">
-              Tudo o que você precisa, sem sair do verde
-            </h2>
+            <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-terra-500">Estrutura</p>
+            <h2 className="text-3xl text-mata-800 sm:text-4xl">Tudo o que você precisa, sem sair do verde</h2>
           </div>
           <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {COMODIDADES.map((c) => (
@@ -167,13 +169,9 @@ export default function Home() {
         <section id="precos" className="bg-mata-800 py-20 text-areia-50 sm:py-28">
           <div className="mx-auto max-w-5xl px-5">
             <div className="mx-auto max-w-2xl text-center">
-              <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-terra-400">
-                Valores 2026
-              </p>
+              <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-terra-400">Valores 2026</p>
               <h2 className="text-3xl text-areia-50 sm:text-4xl">Preços por pessoa, por noite</h2>
-              <p className="mt-4 text-areia-200">
-                Crianças de 6 a 12 anos pagam meia · até 5 anos não pagam.
-              </p>
+              <p className="mt-4 text-areia-200">Crianças de 6 a 12 anos pagam meia · até 5 anos não pagam.</p>
             </div>
 
             <div className="mt-12 overflow-hidden rounded-xl2 ring-1 ring-mata-600">
@@ -205,20 +203,31 @@ export default function Home() {
           </div>
         </section>
 
+        {/* ===== GALERIA ===== */}
+        <section id="galeria" className="mx-auto max-w-7xl px-5 py-20 sm:py-28">
+          <div className="mx-auto max-w-2xl text-center">
+            <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-terra-500">Galeria</p>
+            <h2 className="text-3xl text-mata-800 sm:text-4xl">Um passeio pelo Vapo Camping</h2>
+            <p className="mt-4 text-lg text-tinta-suave">
+              {fotosGaleria.length} momentos do parque. Toque em qualquer foto para ver em tela cheia.
+            </p>
+          </div>
+          <div className="mt-12">
+            <Galeria fotos={fotosGaleria} modo="mosaico" />
+          </div>
+        </section>
+
         {/* ===== RESERVAR ===== */}
-        <section id="reservar" className="mx-auto max-w-6xl px-5 py-20 sm:py-28">
-          <div className="grid items-start gap-12 lg:grid-cols-2">
+        <section id="reservar" className="bg-areia-100 py-20 sm:py-28">
+          <div className="mx-auto grid max-w-6xl items-start gap-12 px-5 lg:grid-cols-2">
             <div className="lg:sticky lg:top-28">
-              <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-terra-500">
-                Reserve seu lugar
-              </p>
+              <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-terra-500">Reserve seu lugar</p>
               <h2 className="text-3xl text-mata-800 sm:text-4xl">
                 Faça seu pedido em <span className="sublinhado-mao">um minuto</span>
               </h2>
               <p className="mt-5 max-w-md text-lg leading-relaxed text-tinta-suave">
-                Escolha a acomodação, as datas e quantas pessoas vão. O site calcula
-                uma estimativa na hora e a gente confirma a disponibilidade pelo
-                WhatsApp — sem compromisso.
+                Escolha a acomodação, as datas e quantas pessoas vão. O site calcula uma
+                estimativa na hora e a gente confirma a disponibilidade pelo WhatsApp — sem compromisso.
               </p>
               <ul className="mt-6 space-y-3 text-tinta">
                 {[
@@ -238,8 +247,8 @@ export default function Home() {
         </section>
 
         {/* ===== REGRAS + HORÁRIOS ===== */}
-        <section className="bg-areia-100 py-20 sm:py-24">
-          <div className="mx-auto grid max-w-6xl gap-12 px-5 md:grid-cols-2">
+        <section className="mx-auto max-w-6xl px-5 py-20 sm:py-24">
+          <div className="grid gap-12 md:grid-cols-2">
             <div>
               <h2 className="text-2xl text-mata-800 sm:text-3xl">Boa convivência</h2>
               <ul className="mt-6 space-y-3">
@@ -271,19 +280,14 @@ export default function Home() {
         </section>
 
         {/* ===== COMO CHEGAR ===== */}
-        <section id="como-chegar" className="mx-auto max-w-6xl px-5 py-20 sm:py-28">
-          <div className="grid items-center gap-10 md:grid-cols-2">
+        <section id="como-chegar" className="bg-areia-100 py-20 sm:py-28">
+          <div className="mx-auto grid max-w-6xl items-center gap-10 px-5 md:grid-cols-2">
             <div>
-              <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-terra-500">
-                Como chegar
-              </p>
-              <h2 className="text-3xl text-mata-800 sm:text-4xl">
-                Pertinho da Estrada do Vinho
-              </h2>
+              <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-terra-500">Como chegar</p>
+              <h2 className="text-3xl text-mata-800 sm:text-4xl">Pertinho da Estrada do Vinho</h2>
               <p className="mt-5 text-lg leading-relaxed text-tinta-suave">
-                Estamos em São Roque, a cidade do vinho, a cerca de uma hora de São
-                Paulo. Vizinhos da famosa Estrada do Vinho, com vinícolas,
-                restaurantes e pesqueiros.
+                Estamos em São Roque, a cidade do vinho, a cerca de uma hora de São Paulo.
+                Vizinhos da famosa Estrada do Vinho, com vinícolas, restaurantes e pesqueiros.
               </p>
               <address className="mt-6 not-italic text-tinta">
                 <p className="font-medium">{CONTATO.endereco}</p>
@@ -291,9 +295,7 @@ export default function Home() {
                 <p>CEP {CONTATO.cep}</p>
               </address>
               <a
-                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-                  CONTATO.endereco + ", " + CONTATO.bairro
-                )}`}
+                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(CONTATO.endereco + ", " + CONTATO.bairro)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="mt-6 inline-block rounded-full bg-mata-700 px-6 py-3 font-semibold text-white transition-colors hover:bg-mata-800"
@@ -307,9 +309,7 @@ export default function Home() {
                 className="h-80 w-full border-0"
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
-                src={`https://www.google.com/maps?q=${encodeURIComponent(
-                  CONTATO.endereco + ", " + CONTATO.bairro
-                )}&output=embed`}
+                src={`https://www.google.com/maps?q=${encodeURIComponent(CONTATO.endereco + ", " + CONTATO.bairro)}&output=embed`}
               />
             </div>
           </div>

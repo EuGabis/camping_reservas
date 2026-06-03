@@ -7,8 +7,8 @@ import { LOGO } from "@/lib/conteudo";
 const LINKS = [
   { href: "#sobre", label: "O parque" },
   { href: "#hospedagem", label: "Hospedagem" },
-  { href: "#estrutura", label: "Estrutura" },
   { href: "#precos", label: "Preços" },
+  { href: "#galeria", label: "Galeria" },
   { href: "#como-chegar", label: "Como chegar" },
 ];
 

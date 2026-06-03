@@ -9,10 +9,6 @@ const nextConfig = {
   poweredByHeader: false,
   // Fixa a raiz do projeto (há outros lockfiles na home do usuário).
   outputFileTracingRoot: __dirname,
-  images: {
-    // Usado pela foto do banner (hero). As demais fotos são locais em /public/fotos.
-    remotePatterns: [{ protocol: "https", hostname: "images.unsplash.com" }],
-  },
   async headers() {
     return [
       {

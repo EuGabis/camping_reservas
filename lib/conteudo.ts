@@ -53,18 +53,6 @@ export const HORARIOS = {
   checkout: "Camping até 18h · Hospedagem até 12h",
 };
 
-// Fotos reais do camping, em /public/fotos. Veja public/fotos/LEIA-ME.txt
-// para saber qual imagem salvar com cada nome de arquivo.
+// Logo em /public/logo.png. As fotos do parque são lidas automaticamente
+// de /public/fotos em lib/fotos.ts.
 export const LOGO = "/logo.png";
-
-export const FOTOS = {
-  // Banner do topo: foto limpa da primeira versão (troque por uma foto larga
-  // e sem moldura do próprio camping quando tiver uma boa).
-  hero: "https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?auto=format&fit=crop&w=2000&q=80",
-  mata: "/fotos/areas-camping.jpg",
-  lago: "/fotos/lagos.jpg",
-  fogueira: "/fotos/camping-noite.jpg",
-  barraca: "/fotos/camping-noite.jpg",
-  pousada: "/fotos/lagos.jpg", // trocar quando houver foto da pousada
-  trilha: "/fotos/camping-dia.jpg",
-};
