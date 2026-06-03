@@ -141,7 +141,7 @@ export default function Home() {
                     </p>
                   </div>
                   <div className={`lg:col-span-8 ${idx % 2 === 1 ? "lg:order-1" : ""}`}>
-                    <Galeria fotos={m.fotos} modo="faixa" />
+                    <Galeria fotos={m.fotos} modo="faixa" auto />
                   </div>
                 </div>
               ))}

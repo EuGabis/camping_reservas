@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
 
@@ -13,10 +13,14 @@ export default function Galeria({
   fotos,
   modo = "mosaico",
   colunas = "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4",
+  auto = false,
+  velocidade = 0.5,
 }: {
   fotos: Foto[];
   modo?: "mosaico" | "faixa";
   colunas?: string;
+  auto?: boolean; // faixa que desliza sozinha (marquee)
+  velocidade?: number; // pixels por frame
 }) {
   const [indice, setIndice] = useState<number | null>(null);
   const [montado, setMontado] = useState(false);
@@ -24,6 +28,36 @@ export default function Galeria({
 
   const total = fotos.length;
   const aberto = indice !== null;
+
+  // ---- Auto-scroll (marquee) para o modo faixa ----
+  const trilhoRef = useRef<HTMLDivElement | null>(null);
+  const pausaHover = useRef(false);
+  const abertoRef = useRef(false);
+  useEffect(() => {
+    abertoRef.current = aberto;
+  }, [aberto]);
+
+  useEffect(() => {
+    if (modo !== "faixa" || !auto) return;
+    const el = trilhoRef.current;
+    if (!el) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    let raf = 0;
+    const passo = () => {
+      if (!pausaHover.current && !abertoRef.current) {
+        el.scrollLeft += velocidade;
+        const metade = el.scrollWidth / 2;
+        if (metade > 0 && el.scrollLeft >= metade) el.scrollLeft -= metade;
+      }
+      raf = requestAnimationFrame(passo);
+    };
+    raf = requestAnimationFrame(passo);
+    return () => cancelAnimationFrame(raf);
+  }, [modo, auto, velocidade]);
+
+  // No marquee, duplicamos a lista para um loop contínuo e sem emendas.
+  const itensFaixa = auto ? [...fotos, ...fotos] : fotos;
 
   const fechar = useCallback(() => setIndice(null), []);
   const prox = useCallback(
@@ -77,14 +111,26 @@ export default function Galeria({
           ))}
         </div>
       ) : (
-        <div className="flex snap-x snap-mandatory gap-3 overflow-x-auto px-1 pb-4">
-          {fotos.map((f, i) => (
+        <div
+          ref={trilhoRef}
+          onMouseEnter={() => (pausaHover.current = true)}
+          onMouseLeave={() => (pausaHover.current = false)}
+          onTouchStart={() => (pausaHover.current = true)}
+          onTouchEnd={() => (pausaHover.current = false)}
+          className={`flex gap-3 overflow-x-auto px-1 pb-4 ${
+            auto ? "[scrollbar-width:none] [&::-webkit-scrollbar]:hidden" : "snap-x snap-mandatory"
+          }`}
+        >
+          {itensFaixa.map((f, i) => (
             <button
-              key={f.src}
+              key={`${f.src}-${i}`}
               type="button"
-              onClick={() => setIndice(i)}
+              onClick={() => setIndice(i % total)}
               aria-label={`Ampliar: ${f.alt}`}
-              className="group relative aspect-[4/3] w-64 shrink-0 snap-start overflow-hidden rounded-2xl bg-mata-800/10 sm:w-80"
+              aria-hidden={auto && i >= total}
+              className={`group relative aspect-[4/3] w-64 shrink-0 overflow-hidden rounded-2xl bg-mata-800/10 sm:w-80 ${
+                auto ? "" : "snap-start"
+              }`}
             >
               <Image
                 src={f.src}
