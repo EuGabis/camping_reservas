@@ -1,0 +1,48 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum StatusReserva {
+  PENDENTE
+  CONFIRMADA
+  CANCELADA
+  CONCLUIDA
+}
+
+model Reserva {
+  id            String        @id @default(cuid())
+  codigo        String        @unique // código curto e legível para o cliente
+  nome          String
+  email         String
+  telefone      String
+  modalidade    String // camping | barracas | pousada
+  acomodacao    String? // ex.: "Suíte com vista"
+  checkin       DateTime      @db.Date
+  checkout      DateTime      @db.Date
+  noites        Int
+  adultos       Int
+  criancas      Int           @default(0)
+  bebes         Int           @default(0)
+  trailer       Boolean       @default(false)
+  observacoes   String?       @db.Text
+  valorEstimado Int // em centavos
+  status        StatusReserva @default(PENDENTE)
+  criadoEm      DateTime      @default(now())
+  atualizadoEm  DateTime      @updatedAt
+
+  @@index([status])
+  @@index([criadoEm])
+}
+
+model Admin {
+  id       String @id @default(cuid())
+  email    String @unique
+  senhaHash String
+  nome     String?
+  criadoEm DateTime @default(now())
+}

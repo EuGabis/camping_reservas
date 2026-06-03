@@ -1,0 +1,76 @@
+@import "tailwindcss";
+
+@theme {
+  /* Paleta inspirada na mata nativa, terra e luz da tarde */
+  --color-mata-900: #14271a;
+  --color-mata-800: #1d3a26;
+  --color-mata-700: #295036;
+  --color-mata-600: #356b48;
+  --color-mata-500: #4a8560;
+  --color-mata-400: #7aa888;
+
+  --color-areia-50: #faf7f0;
+  --color-areia-100: #f3ece0;
+  --color-areia-200: #e7dcc8;
+  --color-areia-300: #d8c7a8;
+
+  --color-terra-600: #b15a31;
+  --color-terra-500: #c2703d;
+  --color-terra-400: #d68b5c;
+
+  --color-tinta: #232019;
+  --color-tinta-suave: #5b5648;
+
+  --font-display: var(--fonte-display), Georgia, serif;
+  --font-corpo: var(--fonte-corpo), system-ui, sans-serif;
+
+  --radius-xl2: 1.75rem;
+}
+
+* {
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 5rem;
+}
+
+body {
+  background-color: var(--color-areia-50);
+  color: var(--color-tinta);
+  font-family: var(--font-corpo);
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+/* Sublinhado vivo, manuscrito, para destaques */
+.sublinhado-mao {
+  background-image: linear-gradient(120deg, var(--color-terra-400) 0%, var(--color-terra-500) 100%);
+  background-repeat: no-repeat;
+  background-position: 0 88%;
+  background-size: 100% 0.32em;
+}
+
+/* Pequena textura/divisória orgânica */
+.borda-folha {
+  border-image: linear-gradient(90deg, transparent, var(--color-mata-400), transparent) 1;
+}
+
+@keyframes sobe {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.aparece {
+  animation: sobe 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .aparece { animation: none; }
+}
