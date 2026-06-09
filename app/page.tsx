@@ -87,8 +87,8 @@ export default function Home() {
 
         {/* ===== SOBRE ===== */}
         <section id="sobre" className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24 lg:py-28">
-          <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
-            <div>
+          <div className="grid min-w-0 items-center gap-10 lg:grid-cols-2 lg:gap-16">
+            <div className="min-w-0">
               <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-terra-500">O parque</p>
               <h2 className="text-2xl text-mata-800 sm:text-3xl lg:text-4xl">{SOBRE.chamada}</h2>
               <div className="mt-5 space-y-4 text-base leading-relaxed text-tinta-suave sm:text-lg">
@@ -126,8 +126,8 @@ export default function Home() {
 
             <div className="mt-12 space-y-14 lg:mt-16 lg:space-y-20">
               {MODALIDADES_BLOCO.map((m, idx) => (
-                <div key={m.id} className="grid items-center gap-8 lg:grid-cols-12">
-                  <div className={`lg:col-span-4 ${idx % 2 === 1 ? "lg:order-2" : ""}`}>
+                <div key={m.id} className="grid min-w-0 items-center gap-8 lg:grid-cols-12">
+                  <div className={`min-w-0 lg:col-span-4 ${idx % 2 === 1 ? "lg:order-2" : ""}`}>
                     <h3 className="font-display text-xl text-mata-800 sm:text-2xl lg:text-3xl">{m.titulo}</h3>
                     <p className="mt-3 text-sm leading-relaxed text-tinta-suave sm:text-base">{m.texto}</p>
                     <p className="mt-4 font-display text-lg font-semibold text-terra-500">
@@ -141,7 +141,7 @@ export default function Home() {
                       {m.fotos.length} fotos · toque para ampliar
                     </p>
                   </div>
-                  <div className={`lg:col-span-8 ${idx % 2 === 1 ? "lg:order-1" : ""}`}>
+                  <div className={`min-w-0 lg:col-span-8 ${idx % 2 === 1 ? "lg:order-1" : ""}`}>
                     <Galeria fotos={m.fotos} modo="faixa" auto />
                   </div>
                 </div>
@@ -242,8 +242,8 @@ export default function Home() {
 
         {/* ===== RESERVAR ===== */}
         <section id="reservar" className="bg-areia-100 py-16 sm:py-24 lg:py-28">
-          <div className="mx-auto grid max-w-6xl items-start gap-10 px-4 sm:px-6 lg:grid-cols-2 lg:gap-16">
-            <div className="lg:sticky lg:top-28">
+          <div className="mx-auto grid min-w-0 max-w-6xl items-start gap-10 px-4 sm:px-6 lg:grid-cols-2 lg:gap-16">
+            <div className="min-w-0 lg:sticky lg:top-28">
               <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-terra-500">Reserve seu lugar</p>
               <h2 className="text-2xl text-mata-800 sm:text-3xl lg:text-4xl">
                 Faça seu pedido em <span className="sublinhado-mao">um minuto</span>
@@ -271,8 +271,8 @@ export default function Home() {
 
         {/* ===== REGRAS + HORÁRIOS ===== */}
         <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20 lg:py-24">
-          <div className="grid gap-10 md:grid-cols-2 md:gap-12">
-            <div>
+          <div className="grid min-w-0 gap-10 md:grid-cols-2 md:gap-12">
+            <div className="min-w-0">
               <h2 className="text-xl text-mata-800 sm:text-2xl lg:text-3xl">Boa convivência</h2>
               <ul className="mt-5 space-y-3 sm:mt-6">
                 {REGRAS.map((r) => (
@@ -304,8 +304,8 @@ export default function Home() {
 
         {/* ===== COMO CHEGAR ===== */}
         <section id="como-chegar" className="bg-areia-100 py-16 sm:py-24 lg:py-28">
-          <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 sm:px-6 md:grid-cols-2 md:gap-14">
-            <div>
+          <div className="mx-auto grid min-w-0 max-w-6xl items-center gap-10 px-4 sm:px-6 md:grid-cols-2 md:gap-14">
+            <div className="min-w-0">
               <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-terra-500">Como chegar</p>
               <h2 className="text-2xl text-mata-800 sm:text-3xl lg:text-4xl">Pertinho da Estrada do Vinho</h2>
               <p className="mt-4 text-base leading-relaxed text-tinta-suave sm:mt-5 sm:text-lg">
