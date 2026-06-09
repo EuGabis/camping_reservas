@@ -57,7 +57,7 @@ export default function Home() {
       <Cabecalho />
       <BotaoWhatsapp />
 
-      <main id="topo">
+      <main id="topo" className="w-full min-w-0">
         {/* ===== HERO ===== */}
         <section className="relative flex min-h-[92vh] items-center justify-center overflow-hidden">
           <Carrossel slides={fotosHero} />

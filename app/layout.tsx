@@ -56,7 +56,15 @@ export default function RootLayout({
 }) {
   return (
     <html lang="pt-BR" className={`${display.variable} ${corpo.variable}`}>
-      <body>{children}</body>
+      <head>
+        {/* Meta viewport explícito — garante responsividade em todos os browsers mobile */}
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1, maximum-scale=5"
+        />
+      </head>
+      <body style={{ width: "100%", maxWidth: "100vw" }}>{children}</body>
     </html>
   );
 }
+
