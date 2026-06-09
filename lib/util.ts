@@ -8,12 +8,39 @@ export function gerarCodigo(): string {
   return `VP-${s}`;
 }
 
-// Rate limiter simples em memória (por instância). Suficiente para conter
-// abuso básico do formulário público. Para produção em escala, troque por
-// um serviço dedicado (ex.: Upstash Ratelimit).
+import { Ratelimit } from "@upstash/ratelimit";
+import { Redis } from "@upstash/redis";
+
+// Limitador de memória local (fallback para desenvolvimento / sem Redis configurado)
 const janela = new Map<string, { contagem: number; reinicio: number }>();
 
-export function permitido(chave: string, max = 5, janelaMs = 60_000): boolean {
+// Instância do limitador distribuído Upstash (usado em produção na Vercel)
+let upstashRatelimit: Ratelimit | null = null;
+const redisUrl = process.env.UPSTASH_REDIS_REST_URL;
+const redisToken = process.env.UPSTASH_REDIS_REST_TOKEN;
+
+if (redisUrl && redisToken) {
+  upstashRatelimit = new Ratelimit({
+    redis: new Redis({
+      url: redisUrl,
+      token: redisToken,
+    }),
+    limiter: Ratelimit.slidingWindow(5, "1 m"), // 5 pedidos por minuto por IP
+    analytics: false,
+  });
+}
+
+export async function permitido(chave: string, max = 5, janelaMs = 60_000): Promise<boolean> {
+  if (upstashRatelimit) {
+    try {
+      const { success } = await upstashRatelimit.limit(chave);
+      return success;
+    } catch (e) {
+      console.error("Erro no Upstash Rate Limit, fazendo fallback para memória local", e);
+    }
+  }
+
+  // Fallback: Rate limiter simples em memória
   const agora = Date.now();
   const reg = janela.get(chave);
   if (!reg || agora > reg.reinicio) {

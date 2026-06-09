@@ -16,7 +16,8 @@ function ip(req: NextRequest): string {
 
 export async function POST(req: NextRequest) {
   // Limita a 5 pedidos por minuto por IP
-  if (!permitido(`reserva:${ip(req)}`, 5, 60_000)) {
+  const allowed = await permitido(`reserva:${ip(req)}`, 5, 60_000);
+  if (!allowed) {
     return NextResponse.json(
       { ok: false, erro: "Muitas tentativas. Aguarde um instante e tente novamente." },
       { status: 429 }
