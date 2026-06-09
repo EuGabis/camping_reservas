@@ -39,17 +39,14 @@
 html {
   scroll-behavior: smooth;
   scroll-padding-top: 5rem;
-  /* Previne overflow horizontal em mobile */
-  overflow-x: hidden;
 }
 
 body {
   background-color: var(--color-areia-50);
   color: var(--color-tinta);
   font-family: var(--font-corpo);
-  /* Previne scroll lateral indesejado */
-  overflow-x: hidden;
-  overscroll-behavior-y: none;
+  /* Previne scroll lateral sem travar scroll vertical no iOS */
+  overflow-x: clip;
 }
 
 h1, h2, h3, h4 {
