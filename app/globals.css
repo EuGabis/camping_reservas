@@ -25,28 +25,48 @@
   --font-corpo: var(--fonte-corpo), system-ui, sans-serif;
 
   --radius-xl2: 1.75rem;
+
+  /* Breakpoint xs adicional para telas entre 480-640px */
+  --breakpoint-xs: 30rem; /* 480px */
 }
 
 * {
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  box-sizing: border-box;
 }
 
 html {
   scroll-behavior: smooth;
   scroll-padding-top: 5rem;
+  /* Previne overflow horizontal em mobile */
+  overflow-x: hidden;
 }
 
 body {
   background-color: var(--color-areia-50);
   color: var(--color-tinta);
   font-family: var(--font-corpo);
+  /* Previne scroll lateral indesejado */
+  overflow-x: hidden;
+  overscroll-behavior-y: none;
 }
 
 h1, h2, h3, h4 {
   font-family: var(--font-display);
   font-weight: 600;
   letter-spacing: -0.01em;
+}
+
+/* Previne zoom automático em inputs no iOS (Safari) */
+input[type="text"],
+input[type="email"],
+input[type="number"],
+input[type="date"],
+input[type="tel"],
+select,
+textarea {
+  font-size: max(1rem, 16px);
 }
 
 /* Sublinhado vivo, manuscrito, para destaques */
@@ -73,4 +93,15 @@ h1, h2, h3, h4 {
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   .aparece { animation: none; }
+}
+
+/* Melhora o tap em botões mobile */
+button, a {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+/* Galeria faixa: scroll suave no touch */
+.galeria-faixa {
+  -webkit-overflow-scrolling: touch;
 }

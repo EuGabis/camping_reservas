@@ -34,30 +34,30 @@ export default async function PainelAdmin() {
   return (
     <main className="min-h-screen bg-areia-100">
       <header className="border-b border-areia-200 bg-areia-50">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-5 sm:py-4">
           <div>
-            <p className="font-display text-xl text-mata-800">🌿 Painel · Reservas</p>
+            <p className="font-display text-base text-mata-800 sm:text-xl">🌿 Painel · Reservas</p>
             <p className="text-xs text-tinta-suave">{sessao.email}</p>
           </div>
           <form action={sair}>
-            <button className="rounded-full border border-areia-300 px-4 py-2 text-sm font-medium text-tinta hover:bg-areia-200">
+            <button className="rounded-full border border-areia-300 px-3 py-1.5 text-xs font-medium text-tinta hover:bg-areia-200 sm:px-4 sm:py-2 sm:text-sm">
               Sair
             </button>
           </form>
         </div>
       </header>
 
-      <div className="mx-auto max-w-6xl px-5 py-8">
-        <div className="grid gap-4 sm:grid-cols-4">
+      <div className="mx-auto max-w-6xl px-4 py-6 sm:px-5 sm:py-8">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
           {[
             ["Pedidos", String(total)],
             ["Pendentes", String(pendentes)],
             ["Confirmadas", String(confirmadas)],
             ["Receita confirmada", centavosParaReais(receita)],
           ].map(([t, v]) => (
-            <div key={t} className="rounded-2xl bg-white p-5 ring-1 ring-areia-200">
-              <p className="text-sm text-tinta-suave">{t}</p>
-              <p className="mt-1 font-display text-2xl font-semibold text-mata-800">{v}</p>
+            <div key={t} className="rounded-2xl bg-white p-4 ring-1 ring-areia-200 sm:p-5">
+              <p className="text-xs text-tinta-suave sm:text-sm">{t}</p>
+              <p className="mt-1 font-display text-xl font-semibold text-mata-800 sm:text-2xl">{v}</p>
             </div>
           ))}
         </div>

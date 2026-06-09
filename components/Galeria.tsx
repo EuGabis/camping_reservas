@@ -117,7 +117,7 @@ export default function Galeria({
           onMouseLeave={() => (pausaHover.current = false)}
           onTouchStart={() => (pausaHover.current = true)}
           onTouchEnd={() => (pausaHover.current = false)}
-          className={`flex gap-3 overflow-x-auto px-1 pb-4 ${
+          className={`galeria-faixa flex gap-2 overflow-x-auto px-1 pb-3 sm:gap-3 sm:pb-4 ${
             auto ? "[scrollbar-width:none] [&::-webkit-scrollbar]:hidden" : "snap-x snap-mandatory"
           }`}
         >
@@ -128,7 +128,7 @@ export default function Galeria({
               onClick={() => setIndice(i % total)}
               aria-label={`Ampliar: ${f.alt}`}
               aria-hidden={auto && i >= total}
-              className={`group relative aspect-[4/3] w-64 shrink-0 overflow-hidden rounded-2xl bg-mata-800/10 sm:w-80 ${
+              className={`group relative aspect-[4/3] w-52 shrink-0 overflow-hidden rounded-xl bg-mata-800/10 sm:w-64 sm:rounded-2xl md:w-80 ${
                 auto ? "" : "snap-start"
               }`}
             >
@@ -136,7 +136,7 @@ export default function Galeria({
                 src={f.src}
                 alt={f.alt}
                 fill
-                sizes="320px"
+                sizes="(max-width:640px) 208px, (max-width:768px) 256px, 320px"
                 className="object-cover transition-transform duration-700 group-hover:scale-110"
               />
             </button>

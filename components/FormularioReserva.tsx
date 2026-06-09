@@ -148,10 +148,10 @@ export default function FormularioReserva() {
         `\nPodemos confirmar a disponibilidade?`
     );
     return (
-      <div className="rounded-xl2 bg-white p-8 text-center shadow-lg ring-1 ring-areia-200">
+      <div className="rounded-xl bg-white p-6 text-center shadow-lg ring-1 ring-areia-200 sm:rounded-xl2 sm:p-8">
         <p className="text-4xl" aria-hidden>🌲</p>
-        <h3 className="mt-3 text-2xl text-mata-800">Pedido recebido!</h3>
-        <p className="mt-2 text-tinta-suave">
+        <h3 className="mt-3 text-xl text-mata-800 sm:text-2xl">Pedido recebido!</h3>
+        <p className="mt-2 text-sm text-tinta-suave sm:text-base">
           Seu código é <strong className="text-mata-700">{sucesso.codigo}</strong>. Guarde-o.
           Para confirmar a disponibilidade e o pagamento de 50%, fale com a gente:
         </p>
@@ -198,13 +198,13 @@ export default function FormularioReserva() {
         </label>
       </div>
 
-      <div className="mb-5 grid grid-cols-3 gap-2">
+      <div className="mb-5 grid grid-cols-1 gap-2 xs:grid-cols-3 sm:grid-cols-3">
         {(Object.keys(MODALIDADES) as ModalidadeId[]).map((m) => (
           <button
             key={m}
             type="button"
             onClick={() => trocarModalidade(m)}
-            className={`rounded-lg px-2 py-2.5 text-sm font-semibold transition ${
+            className={`rounded-lg px-2 py-2.5 text-xs font-semibold transition sm:text-sm ${
               s.modalidade === m
                 ? "bg-mata-700 text-white shadow"
                 : "bg-areia-100 text-tinta hover:bg-areia-200"
@@ -257,7 +257,7 @@ export default function FormularioReserva() {
         </div>
       </div>
 
-      <div className="mb-4 grid grid-cols-3 gap-3">
+      <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
         <div>
           <label className={rotulo}>Adultos</label>
           <input
