@@ -32,7 +32,7 @@ const MODALIDADES_BLOCO = [
     id: "camping" as ModalidadeId,
     titulo: "Camping",
     texto:
-      "Traga sua barraca e escolha entre as 5 áreas espalhadas pela mata, com pontos de energia 220v, cozinha comunitária, lava-pratos, vestiários, salão de jogos, espaço de convivência, redário e muito verde ao redor.",
+      "Vestiários, salão de jogos, espaço de convivência, redário e muito verde ao redor.",
     fotos: fotosCamping,
   },
   {
