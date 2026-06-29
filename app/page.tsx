@@ -46,7 +46,7 @@ const MODALIDADES_BLOCO = [
     id: "pousada" as ModalidadeId,
     titulo: "Pousada Casa Camping",
     texto:
-      "Suítes e quartos com vista para o verde, para quem prefere o conforto de quatro paredes com a natureza logo ali fora.",
+      "Suíte e quartos com vista para o verde, para quem prefere o conforto de quatro paredes com a natureza logo ali fora.",
     fotos: pousadaTodas,
   },
 ];
