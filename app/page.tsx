@@ -169,7 +169,7 @@ export default function Home() {
             <div className="mx-auto max-w-2xl text-center">
               <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-terra-400">Valores 2026</p>
               <h2 className="text-2xl text-areia-50 sm:text-3xl lg:text-4xl">Preços por pessoa, por noite</h2>
-              <p className="mt-4 text-sm text-areia-200 sm:text-base">Crianças de 6 a 12 anos pagam meia · até 5 anos não pagam.</p>
+              <p className="mt-4 text-sm text-areia-200 sm:text-base">Crianças de 6 a 12 anos pagam meia · até 5 anos cortesia.</p>
             </div>
 
             {/* Tabela visível em telas md+ */}
@@ -179,7 +179,7 @@ export default function Home() {
                   <tr>
                     <th className="px-5 py-4">Acomodação</th>
                     <th className="px-5 py-4">Estadia 2+ noites</th>
-                    <th className="px-5 py-4">Noite única / fim de semana</th>
+                    <th className="px-5 py-4">Noite única / sábado para domingo</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-mata-700/70">
@@ -209,7 +209,7 @@ export default function Home() {
                       <p className="font-display text-base font-semibold text-areia-50">{centavosParaReais(a.adultoSemana)}</p>
                     </div>
                     <div className="rounded-lg bg-mata-900/40 p-2.5">
-                      <p className="text-xs text-areia-300">Noite única / fds</p>
+                      <p className="text-xs text-areia-300">Noite única / sáb–dom</p>
                       <p className="font-display text-base font-semibold text-areia-50">{centavosParaReais(a.adultoUmaNoite)}</p>
                     </div>
                   </div>
@@ -218,7 +218,7 @@ export default function Home() {
             </div>
 
             <p className="mt-4 text-center text-xs text-areia-300">
-              Trailer/motorhome: +R$ 5,00 por pessoa/noite. Pagamento: 50% na reserva e o restante no check-in (PIX ou cartão).
+              Trailer/motorhome: +R$ 5,00 por pessoa/noite. Pagamento: 50% na reserva via PIX e o restante no check-in (PIX ou cartão).
             </p>
           </div>
         </section>
@@ -286,7 +286,7 @@ export default function Home() {
                 {[
                   ["Funcionamento", HORARIOS.funcionamento],
                   ["Check-in camping", HORARIOS.checkinCamping],
-                  ["Check-in hospedagem", HORARIOS.checkinHospedagem],
+                  ["Check-in quartos e Hotel de Barracas", HORARIOS.checkinHospedagem],
                   ["Check-out", HORARIOS.checkout],
                 ].map(([t, v]) => (
                   <div key={t} className="rounded-xl border border-areia-200 bg-white p-3.5 sm:p-4">

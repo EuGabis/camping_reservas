@@ -31,7 +31,7 @@ export default function Rodape() {
         </div>
 
         <div className="text-sm leading-relaxed">
-          <p className="font-display text-lg text-areia-50">Fale com a gente</p>
+          <p className="font-display text-lg text-areia-50">Fale conosco</p>
           <a
             href={`https://wa.me/${CONTATO.whatsapp}`}
             target="_blank"

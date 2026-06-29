@@ -42,7 +42,7 @@ export const ACOMODACOES: Acomodacao[] = [
     nome: "Hotel de Barracas",
     descricao:
       "Tenda já montada e estruturada, para quem quer a experiência do camping sem montar nada.",
-    capacidade: "Mínimo 2 adultos",
+    capacidade: "Por pessoa · Mínimo 2 adultos",
     adultoSemana: 11000, // estadia mínima de 2 noites
     adultoUmaNoite: 16000, // 1 noite
     minAdultos: 2,
@@ -52,7 +52,7 @@ export const ACOMODACOES: Acomodacao[] = [
     modalidade: "pousada",
     nome: "Suíte com vista",
     descricao: "Suíte com banheiro privativo e vista para a mata nativa.",
-    capacidade: "Mínimo 2 adultos",
+    capacidade: "Por pessoa · Mínimo 2 adultos",
     adultoSemana: 13000,
     adultoUmaNoite: 19000,
     minAdultos: 2,
@@ -62,7 +62,7 @@ export const ACOMODACOES: Acomodacao[] = [
     modalidade: "pousada",
     nome: "Quarto com vista",
     descricao: "Quarto confortável com vista para o verde do parque.",
-    capacidade: "Mínimo 2 adultos",
+    capacidade: "Por pessoa · Mínimo 2 adultos",
     adultoSemana: 10000,
     adultoUmaNoite: 14000,
     minAdultos: 2,
@@ -72,7 +72,7 @@ export const ACOMODACOES: Acomodacao[] = [
     modalidade: "pousada",
     nome: "Quarto corredor",
     descricao: "Opção mais econômica da Pousada Casa Camping.",
-    capacidade: "Mínimo 2 adultos",
+    capacidade: "Por pessoa · Mínimo 2 adultos",
     adultoSemana: 9000,
     adultoUmaNoite: 13000,
     minAdultos: 2,

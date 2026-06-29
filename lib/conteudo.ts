@@ -28,13 +28,13 @@ export interface Comodidade {
 }
 
 export const COMODIDADES: Comodidade[] = [
-  { titulo: "Banheiros e chuveiros", texto: "Vestiários masculinos e femininos com vários sanitários e chuveiros quentes." },
-  { titulo: "5 áreas de camping", texto: "Espaços amplos com pontos de energia 220v distribuídos pelo parque." },
-  { titulo: "Trailer e motorhome", texto: "Área específica com ponto de água para quem viaja sobre rodas." },
+  { titulo: "Banheiros e chuveiros", texto: "Vestiários masculinos e femininos com vários vasos e chuveiros quentes." },
+  { titulo: "5 áreas de camping", texto: "Espaços amplos com pontos de energia 220v distribuídos pelo camping." },
+  { titulo: "Trailer e motorhome", texto: "Área específica com ponto de água e energia elétrica para quem viaja sobre rodas." },
   { titulo: "Cozinha comunitária", texto: "Geladeira, fogão, micro-ondas e filtro à disposição de todos." },
   { titulo: "Lava-pratos e tanques", texto: "Lava-pratos em todas as áreas e tanques para lavar roupas." },
   { titulo: "4 lagos para pesca", texto: "Pesque, contemple e relaxe à beira d'água em meio à mata." },
-  { titulo: "Trilha e cascata", texto: "Trilha pela mata nativa, cascata e roda d'água para explorar." },
+  { titulo: "Trilha", texto: "Trilha interna para uma caminhada revigorante em meio ao verde." },
   { titulo: "Fauna preservada", texto: "Gansos, saguis, esquilos, jacus e dezenas de espécies de pássaros." },
 ];
 
@@ -44,14 +44,14 @@ export const REGRAS: string[] = [
   "Pets pequenos são bem-vindos no camping, sempre na coleira (não permitidos em barracas e quartos).",
   "Acesso às áreas sociais das 8h30 às 18h.",
   "Funcionamento de quinta a segunda — fechado às terças e quartas.",
-  "Pagamento: 50% na reserva e o restante no check-in, via PIX ou cartão.",
+  "Pagamento: 50% na reserva via PIX e o restante no check-in (PIX ou cartão).",
 ];
 
 export const HORARIOS = {
   funcionamento: "Quinta a segunda-feira (fechado terça e quarta)",
   checkinCamping: "Sáb a qui: 8h30–16h · Sex e véspera de feriado: 8h30–21h",
   checkinHospedagem: "14h–21h (aos sábados até 16h)",
-  checkout: "Camping até 18h · Hospedagem até 12h",
+  checkout: "Camping até 18h · Quartos e Hotel de Barracas até 12h",
 };
 
 // Logo em /public/logo.png. As fotos do parque são lidas automaticamente
