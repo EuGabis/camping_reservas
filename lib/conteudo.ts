@@ -15,9 +15,10 @@ export const CONTATO = {
 export const SOBRE = {
   chamada: "Um refúgio especial, criado por campistas.",
   paragrafos: [
-    "Cercado pelo verde da mata nativa, o Vapo Camping EcoPark é um refúgio para quem gosta de apreciar e contemplar a natureza. Numa área de 10 hectares — parte dela Área de Preservação Permanente — com árvores nativas de mais de 80 espécies, 4 lagos para pesca e trilha.",
-    "Integrado a essa natureza exuberante, há animais de diversas espécies, como gansos, jacus, saguis, esquilos, além de uma grande diversidade de pássaros.",
-    "Localizado em São Roque, a 60 km de São Paulo — a cidade do vinho — temos como vizinha a famosa Estrada do Vinho, com 10 quilômetros de vinícolas, restaurantes, bares e pesqueiros. Aqui você tem estrutura completa para aproveitar o dia de lazer e o sossego do camping.",
+    "Cercado pelo verde da mata nativa, o Vapo Camping EcoPark é um refúgio para quem gosta de apreciar e contemplar a natureza. Situado em uma área de 10 hectares, parte dela sendo uma Área de Preservação Permanente (APP), com árvores nativas de mais de 80 espécies, 4 lagos para pesca, trilha, cascata e uma charmosa roda d'água que dá queda a um riacho com diversas espécies de peixes. Integrado a esta natureza exuberante, há animais de diversas espécies, como gansos, jacus, saguis, esquilos, além de uma infinidade de pássaros.",
+    "Localizado na cidade de São Roque, a 60 km de São Paulo, considerada a cidade do vinho, tem como sua principal atração a Estrada do Vinho, via de 10 quilômetros de extensão com vinícolas, restaurantes, bares, sítios, pesqueiros, plantação de uvas e alcachofras.",
+    "A gastronomia é o que mais atrai turistas nesta rota, com pratos diversificados, para todos os bolsos e gostos. Mas as atrações não param por aí: a linda cidade de São Roque, situada em meio às montanhas, tem atividades para aventureiros, passeios culturais, uma vida noturna agitada e ótimas opções de compras.",
+    "O Vapo Camping EcoPark conta com uma estrutura completa para que todos possam aproveitar da melhor forma o dia de lazer e sossego dentro do camping.",
   ],
 };
 

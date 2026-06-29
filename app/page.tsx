@@ -32,7 +32,7 @@ const MODALIDADES_BLOCO = [
     id: "camping" as ModalidadeId,
     titulo: "Camping",
     texto:
-      "Traga sua barraca e escolha entre as 5 áreas espalhadas pela mata, com pontos de energia 220v, cozinha comunitária, lava-pratos e muito verde ao redor.",
+      "Traga sua barraca e escolha entre as 5 áreas espalhadas pela mata, com pontos de energia 220v, cozinha comunitária, lava-pratos, vestiários, salão de jogos, espaço de convivência, redário e muito verde ao redor.",
     fotos: fotosCamping,
   },
   {
@@ -67,8 +67,8 @@ export default function Home() {
               São Roque · SP · a 60 km de São Paulo
             </p>
             <h1 className="aparece font-display text-3xl leading-tight sm:text-5xl lg:text-6xl">
-              Durma debaixo das árvores,{" "}
-              <span className="italic text-terra-400">acorde no meio da mata.</span>
+              Um lugar especial,{" "}
+              <span className="italic text-terra-400">de campista para campista.</span>
             </h1>
             <p className="aparece mx-auto mt-4 max-w-xl text-base text-areia-100 sm:mt-5 sm:text-lg">
               Um refúgio de 10 hectares com lagos, trilha e cascata — feito por
@@ -89,9 +89,8 @@ export default function Home() {
         <section id="sobre" className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24 lg:py-28">
           <div className="grid min-w-0 items-center gap-10 lg:grid-cols-2 lg:gap-16">
             <div className="min-w-0">
-              <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-terra-500">O parque</p>
-              <h2 className="text-2xl text-mata-800 sm:text-3xl lg:text-4xl">{SOBRE.chamada}</h2>
-              <div className="mt-5 space-y-4 text-base leading-relaxed text-tinta-suave sm:text-lg">
+              <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-terra-500">O camping</p>
+              <div className="mt-2 space-y-4 text-base leading-relaxed text-tinta-suave sm:text-lg">
                 {SOBRE.paragrafos.map((p, i) => (
                   <p key={i}>{p}</p>
                 ))}
@@ -118,7 +117,7 @@ export default function Home() {
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
             <div className="mx-auto max-w-2xl text-center">
               <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-terra-500">Onde ficar</p>
-              <h2 className="text-2xl text-mata-800 sm:text-3xl lg:text-4xl">Três jeitos de passar a noite na mata</h2>
+              <h2 className="text-2xl text-mata-800 sm:text-3xl lg:text-4xl">Três maneiras de se hospedar em meio ao verde</h2>
               <p className="mt-4 text-base text-tinta-suave sm:text-lg">
                 Da barraca embaixo das estrelas ao conforto de uma suíte com vista — escolha o seu.
               </p>
