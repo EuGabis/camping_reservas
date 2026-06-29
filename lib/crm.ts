@@ -32,12 +32,17 @@ export interface ReservaParaCRM {
   valorEstimado: number; // centavos
 }
 
-export async function encaminharReservaCRM(r: ReservaParaCRM): Promise<boolean> {
+export interface ResultadoCRM {
+  ok: boolean;
+  codigo?: string;
+}
+
+export async function encaminharReservaCRM(r: ReservaParaCRM): Promise<ResultadoCRM> {
   const url = process.env.CRM_INGEST_URL;
   const key = process.env.INGEST_API_KEY;
 
   // Integração desligada: não configurada ainda.
-  if (!url || !key) return false;
+  if (!url || !key) return { ok: false };
 
   try {
     const resp = await fetch(url, {
@@ -66,14 +71,14 @@ export async function encaminharReservaCRM(r: ReservaParaCRM): Promise<boolean> 
       signal: AbortSignal.timeout(8000),
     });
 
+    const corpo = await resp.json().catch(() => ({}) as { codigo?: string });
     if (!resp.ok) {
-      const corpo = await resp.text().catch(() => "");
-      console.error(`[CRM] ingestão falhou (${resp.status}): ${corpo}`);
-      return false;
+      console.error(`[CRM] ingestão falhou (${resp.status}): ${JSON.stringify(corpo)}`);
+      return { ok: false };
     }
-    return true;
+    return { ok: true, codigo: (corpo as { codigo?: string }).codigo };
   } catch (e) {
     console.error("[CRM] erro ao encaminhar reserva:", e);
-    return false;
+    return { ok: false };
   }
 }

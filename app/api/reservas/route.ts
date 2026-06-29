@@ -68,10 +68,30 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: false, erro: estimativa.erro }, { status: 400 });
   }
 
+  // 1) Encaminha ao CRM — fonte primária da reserva.
+  const crm = await encaminharReservaCRM({
+    nome: d.nome,
+    email: d.email,
+    telefone: d.telefone,
+    modalidade: acomodacao.modalidade,
+    acomodacaoNome: acomodacao.nome,
+    checkin: d.checkin,
+    checkout: d.checkout,
+    adultos: d.adultos,
+    criancas: d.criancas,
+    bebes: d.bebes,
+    trailer: d.trailer,
+    observacoes: d.observacoes || null,
+    valorEstimado: estimativa.total,
+  });
+
+  // 2) Grava também no banco local (best-effort; legado do site, não bloqueia).
+  const codigo = crm.codigo ?? gerarCodigo();
+  let salvouLocal = false;
   try {
-    const reserva = await prisma.reserva.create({
+    await prisma.reserva.create({
       data: {
-        codigo: gerarCodigo(),
+        codigo,
         nome: d.nome,
         email: d.email,
         telefone: d.telefone,
@@ -88,34 +108,18 @@ export async function POST(req: NextRequest) {
         valorEstimado: estimativa.total,
       },
     });
-
-    // Encaminha a reserva para o CRM (best-effort; não bloqueia o cliente).
-    await encaminharReservaCRM({
-      nome: d.nome,
-      email: d.email,
-      telefone: d.telefone,
-      modalidade: acomodacao.modalidade,
-      acomodacaoNome: acomodacao.nome,
-      checkin: d.checkin,
-      checkout: d.checkout,
-      adultos: d.adultos,
-      criancas: d.criancas,
-      bebes: d.bebes,
-      trailer: d.trailer,
-      observacoes: d.observacoes || null,
-      valorEstimado: estimativa.total,
-    });
-
-    return NextResponse.json({
-      ok: true,
-      codigo: reserva.codigo,
-      valorEstimado: reserva.valorEstimado,
-    });
+    salvouLocal = true;
   } catch (e) {
-    console.error("Erro ao salvar reserva:", e);
+    console.error("Reserva não salva no banco local (seguindo via CRM):", e);
+  }
+
+  // Só é erro se NENHUM destino registrou a reserva.
+  if (!crm.ok && !salvouLocal) {
     return NextResponse.json(
       { ok: false, erro: "Não foi possível registrar o pedido agora. Tente pelo WhatsApp." },
       { status: 500 }
     );
   }
+
+  return NextResponse.json({ ok: true, codigo, valorEstimado: estimativa.total });
 }
