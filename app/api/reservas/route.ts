@@ -6,6 +6,7 @@ import { gerarCodigo, permitido } from "@/lib/util";
 import { encaminharReservaCRM } from "@/lib/crm";
 
 export const runtime = "nodejs";
+export const maxDuration = 20; // margem para o encaminhamento ao CRM (retry incluso)
 
 function ip(req: NextRequest): string {
   return (
