@@ -5,7 +5,7 @@ import FormularioReserva from "@/components/FormularioReserva";
 import Carrossel from "@/components/Carrossel";
 import Galeria from "@/components/Galeria";
 import { ACOMODACOES, ModalidadeId, centavosParaReais } from "@/lib/precos";
-import { SOBRE, COMODIDADES, REGRAS, HORARIOS, CONTATO } from "@/lib/conteudo";
+import { COMODIDADES, REGRAS, HORARIOS, CONTATO } from "@/lib/conteudo";
 import {
   fotosHero,
   fotosParque,
@@ -85,31 +85,29 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ===== SOBRE ===== */}
+        {/* ===== SOBRE / O CAMPING ===== */}
         <section id="sobre" className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24 lg:py-28">
-          <div className="grid min-w-0 items-center gap-10 lg:grid-cols-2 lg:gap-16">
-            <div className="min-w-0">
-              <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-terra-500">O camping</p>
-              <div className="mt-2 space-y-4 text-base leading-relaxed text-tinta-suave sm:text-lg">
-                {SOBRE.paragrafos.map((p, i) => (
-                  <p key={i}>{p}</p>
-                ))}
-              </div>
-              <dl className="mt-8 grid grid-cols-3 gap-3 border-t border-areia-200 pt-6 sm:gap-4">
-                {[
-                  ["10 ha", "de mata nativa"],
-                  ["80+", "espécies de árvores"],
-                  ["4 lagos", "pesca e contemplação"],
-                ].map(([n, t]) => (
-                  <div key={t}>
-                    <dt className="font-display text-xl font-semibold text-mata-700 sm:text-2xl">{n}</dt>
-                    <dd className="mt-0.5 text-xs leading-snug text-tinta-suave sm:text-sm">{t}</dd>
-                  </div>
-                ))}
-              </dl>
-            </div>
-            <Galeria fotos={fotosParque} modo="mosaico" colunas="grid-cols-2" />
+          <div className="mx-auto mb-10 max-w-2xl text-center sm:mb-12">
+            <p className="mb-4 text-sm font-semibold uppercase tracking-widest text-terra-500">O camping</p>
+            <dl className="mx-auto grid max-w-md grid-cols-3 gap-4">
+              {[
+                ["10 ha", "de mata nativa"],
+                ["80+", "espécies de árvores"],
+                ["4 lagos", "pesca e contemplação"],
+              ].map(([n, t]) => (
+                <div key={t}>
+                  <dt className="font-display text-2xl font-semibold text-mata-700 sm:text-3xl">{n}</dt>
+                  <dd className="mt-1 text-xs leading-snug text-tinta-suave sm:text-sm">{t}</dd>
+                </div>
+              ))}
+            </dl>
           </div>
+
+          <Galeria
+            fotos={fotosParque}
+            modo="mosaico"
+            colunas="grid-cols-2 sm:grid-cols-3 lg:grid-cols-4"
+          />
         </section>
 
         {/* ===== HOSPEDAGEM / MODALIDADES ===== */}
