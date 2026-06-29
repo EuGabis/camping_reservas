@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { reservaSchema } from "@/lib/validacao";
 import { calcularEstimativa, acomodacaoPorId, diferencaNoites } from "@/lib/precos";
 import { gerarCodigo, permitido } from "@/lib/util";
+import { encaminharReservaCRM } from "@/lib/crm";
 
 export const runtime = "nodejs";
 
@@ -86,6 +87,23 @@ export async function POST(req: NextRequest) {
         observacoes: d.observacoes || null,
         valorEstimado: estimativa.total,
       },
+    });
+
+    // Encaminha a reserva para o CRM (best-effort; não bloqueia o cliente).
+    await encaminharReservaCRM({
+      nome: d.nome,
+      email: d.email,
+      telefone: d.telefone,
+      modalidade: acomodacao.modalidade,
+      acomodacaoNome: acomodacao.nome,
+      checkin: d.checkin,
+      checkout: d.checkout,
+      adultos: d.adultos,
+      criancas: d.criancas,
+      bebes: d.bebes,
+      trailer: d.trailer,
+      observacoes: d.observacoes || null,
+      valorEstimado: estimativa.total,
     });
 
     return NextResponse.json({
