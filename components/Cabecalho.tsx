@@ -62,7 +62,7 @@ export default function Cabecalho() {
             </a>
           ))}
           <a
-            href="#reservar"
+            href="#hospedagem"
             className="rounded-full bg-terra-500 px-5 py-2 text-sm font-semibold text-white shadow-sm transition-transform hover:scale-[1.03] hover:bg-terra-600"
           >
             Reservar
@@ -98,7 +98,7 @@ export default function Cabecalho() {
             </a>
           ))}
           <a
-            href="#reservar"
+            href="#hospedagem"
             onClick={() => setAberto(false)}
             className="mt-2 block rounded-full bg-terra-500 px-5 py-2 text-center font-semibold text-white"
           >

@@ -1,7 +1,6 @@
 import Cabecalho from "@/components/Cabecalho";
 import Rodape from "@/components/Rodape";
 import BotaoWhatsapp from "@/components/BotaoWhatsapp";
-import FormularioReserva from "@/components/FormularioReserva";
 import Carrossel from "@/components/Carrossel";
 import Galeria from "@/components/Galeria";
 import { ACOMODACOES, ModalidadeId, centavosParaReais } from "@/lib/precos";
@@ -30,6 +29,7 @@ const pousadaTodas = [
 const MODALIDADES_BLOCO = [
   {
     id: "camping" as ModalidadeId,
+    reservarId: "camping-area",
     titulo: "Camping",
     texto:
       "Vestiários, salão de jogos, espaço de convivência, redário e muito verde ao redor.",
@@ -37,6 +37,7 @@ const MODALIDADES_BLOCO = [
   },
   {
     id: "barracas" as ModalidadeId,
+    reservarId: "barraca-estruturada",
     titulo: "Hotel de Barracas",
     texto:
       "A tenda já montada e estruturada esperando por você — a experiência do camping, sem precisar carregar nem armar nada.",
@@ -44,6 +45,7 @@ const MODALIDADES_BLOCO = [
   },
   {
     id: "pousada" as ModalidadeId,
+    reservarId: "suite-vista",
     titulo: "Pousada Casa Camping",
     texto:
       "Suíte e quartos com vista para o verde, para quem prefere o conforto de quatro paredes com a natureza logo ali fora.",
@@ -75,7 +77,7 @@ export default function Home() {
               campistas, para quem gosta de natureza de verdade.
             </p>
             <div className="aparece mt-6 flex flex-col items-center justify-center gap-3 sm:mt-8 sm:flex-row">
-              <a href="#reservar" className="w-full rounded-full bg-terra-500 px-8 py-3.5 text-center font-semibold text-white shadow-lg transition-transform hover:scale-105 hover:bg-terra-600 sm:w-auto">
+              <a href="#hospedagem" className="w-full rounded-full bg-terra-500 px-8 py-3.5 text-center font-semibold text-white shadow-lg transition-transform hover:scale-105 hover:bg-terra-600 sm:w-auto">
                 Fazer meu pedido de reserva
               </a>
               <a href="#hospedagem" className="w-full rounded-full border border-areia-100/60 px-8 py-3.5 text-center font-semibold text-areia-50 backdrop-blur transition-colors hover:bg-areia-50/10 sm:w-auto">
@@ -131,7 +133,12 @@ export default function Home() {
                       A partir de {aPartirDe(m.id)}{" "}
                       <span className="text-sm font-normal text-tinta-suave">/ pessoa · noite</span>
                     </p>
-                    <a href="#reservar" className="mt-4 inline-block rounded-full bg-mata-700 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-mata-800">
+                    <a
+                      href={`/reservar/${m.reservarId}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-4 inline-block rounded-full bg-mata-700 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-mata-800"
+                    >
                       Reservar {m.titulo}
                     </a>
                     <p className="mt-3 text-xs text-tinta-suave">
@@ -188,6 +195,14 @@ export default function Home() {
                       <td className="px-5 py-4">
                         <p className="font-medium text-areia-50">{a.nome}</p>
                         <p className="text-xs text-areia-300">{a.capacidade}</p>
+                        <a
+                          href={`/reservar/${a.id}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="mt-1 inline-block text-xs font-semibold text-terra-400 hover:text-terra-300"
+                        >
+                          Reservar →
+                        </a>
                       </td>
                       <td className="px-5 py-4 font-display text-lg">{centavosParaReais(a.adultoSemana)}</td>
                       <td className="px-5 py-4 font-display text-lg">{centavosParaReais(a.adultoUmaNoite)}</td>
@@ -213,6 +228,14 @@ export default function Home() {
                       <p className="font-display text-base font-semibold text-areia-50">{centavosParaReais(a.adultoUmaNoite)}</p>
                     </div>
                   </div>
+                  <a
+                    href={`/reservar/${a.id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-3 block rounded-full bg-terra-500 px-4 py-2 text-center text-sm font-semibold text-white"
+                  >
+                    Reservar
+                  </a>
                 </div>
               ))}
             </div>
@@ -234,35 +257,6 @@ export default function Home() {
           </div>
           <div className="mt-10 sm:mt-12">
             <Galeria fotos={fotosGaleria} modo="mosaico" />
-          </div>
-        </section>
-
-        {/* ===== RESERVAR ===== */}
-        <section id="reservar" className="bg-areia-100 py-16 sm:py-24 lg:py-28">
-          <div className="mx-auto grid min-w-0 max-w-6xl items-start gap-10 px-4 sm:px-6 lg:grid-cols-2 lg:gap-16">
-            <div className="min-w-0 lg:sticky lg:top-28">
-              <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-terra-500">Reserve seu lugar</p>
-              <h2 className="text-2xl text-mata-800 sm:text-3xl lg:text-4xl">
-                Faça seu pedido em <span className="sublinhado-mao">um minuto</span>
-              </h2>
-              <p className="mt-4 max-w-md text-base leading-relaxed text-tinta-suave sm:mt-5 sm:text-lg">
-                Escolha a acomodação, as datas e quantas pessoas vão. O site calcula uma
-                estimativa na hora e a gente confirma a disponibilidade pelo WhatsApp — sem compromisso.
-              </p>
-              <ul className="mt-5 space-y-3 text-tinta sm:mt-6">
-                {[
-                  "Resposta rápida pelo WhatsApp",
-                  "50% na reserva, restante no check-in",
-                  "Crianças até 5 anos não pagam",
-                ].map((t) => (
-                  <li key={t} className="flex items-center gap-3">
-                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-mata-600 text-xs text-white">✓</span>
-                    <span className="text-sm sm:text-base">{t}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <FormularioReserva />
           </div>
         </section>
 

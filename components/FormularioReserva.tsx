@@ -48,8 +48,18 @@ const inicial: Estado = {
   site: "",
 };
 
-export default function FormularioReserva() {
-  const [s, setS] = useState<Estado>(inicial);
+export default function FormularioReserva({
+  acomodacaoInicial,
+  fixarAcomodacao = false,
+}: {
+  acomodacaoInicial?: string;
+  fixarAcomodacao?: boolean;
+} = {}) {
+  const base = ACOMODACOES.find((a) => a.id === acomodacaoInicial);
+  const estadoInicial: Estado = base
+    ? { ...inicial, acomodacaoId: base.id, modalidade: base.modalidade }
+    : inicial;
+  const [s, setS] = useState<Estado>(estadoInicial);
   const [enviando, setEnviando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
   const [sucesso, setSucesso] = useState<{ codigo: string; valor: number } | null>(null);
@@ -166,7 +176,7 @@ export default function FormularioReserva() {
         <button
           onClick={() => {
             setSucesso(null);
-            setS(inicial);
+            setS(estadoInicial);
           }}
           className="mt-4 block w-full text-sm text-tinta-suave underline"
         >
@@ -198,24 +208,32 @@ export default function FormularioReserva() {
         </label>
       </div>
 
-      <div className="mb-5 grid grid-cols-1 gap-2 xs:grid-cols-3 sm:grid-cols-3">
-        {(Object.keys(MODALIDADES) as ModalidadeId[]).map((m) => (
-          <button
-            key={m}
-            type="button"
-            onClick={() => trocarModalidade(m)}
-            className={`rounded-lg px-2 py-2.5 text-xs font-semibold transition sm:text-sm ${
-              s.modalidade === m
-                ? "bg-mata-700 text-white shadow"
-                : "bg-areia-100 text-tinta hover:bg-areia-200"
-            }`}
-          >
-            {MODALIDADES[m].nome}
-          </button>
-        ))}
-      </div>
+      {fixarAcomodacao && (
+        <div className="mb-5 rounded-lg bg-mata-700/10 px-3 py-2.5 text-sm text-mata-800">
+          Acomodação: <strong>{acomodacaoNome || "selecionada"}</strong>
+        </div>
+      )}
 
-      {acomodacoesDaModalidade.length > 1 && (
+      {!fixarAcomodacao && (
+        <div className="mb-5 grid grid-cols-1 gap-2 xs:grid-cols-3 sm:grid-cols-3">
+          {(Object.keys(MODALIDADES) as ModalidadeId[]).map((m) => (
+            <button
+              key={m}
+              type="button"
+              onClick={() => trocarModalidade(m)}
+              className={`rounded-lg px-2 py-2.5 text-xs font-semibold transition sm:text-sm ${
+                s.modalidade === m
+                  ? "bg-mata-700 text-white shadow"
+                  : "bg-areia-100 text-tinta hover:bg-areia-200"
+              }`}
+            >
+              {MODALIDADES[m].nome}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {!fixarAcomodacao && acomodacoesDaModalidade.length > 1 && (
         <div className="mb-4">
           <label className={rotulo}>Acomodação</label>
           <select
