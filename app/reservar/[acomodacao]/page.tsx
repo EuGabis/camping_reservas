@@ -43,14 +43,31 @@ export async function generateMetadata({
   };
 }
 
+function inteiro(v: string | string[] | undefined): number | undefined {
+  const n = parseInt(String(Array.isArray(v) ? v[0] : v ?? ""), 10);
+  return Number.isFinite(n) ? n : undefined;
+}
+
 export default async function ReservarAcomodacaoPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ acomodacao: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { acomodacao } = await params;
   const dados = acomodacaoPorId(acomodacao);
   if (!dados) notFound();
+
+  // Datas/hóspedes vindos do motor de reserva (pré-preenchem o formulário).
+  const sp = await searchParams;
+  const dadosIniciais = {
+    checkin: sp.checkin ? String(sp.checkin) : undefined,
+    checkout: sp.checkout ? String(sp.checkout) : undefined,
+    adultos: inteiro(sp.adultos),
+    criancas: inteiro(sp.criancas),
+    bebes: inteiro(sp.bebes),
+  };
 
   const fotosAcom = FOTOS_POR_ACOMODACAO[acomodacao] ?? [];
   const fotos = (fotosAcom.length ? fotosAcom : fotosGaleria).slice(0, 8);
@@ -128,7 +145,11 @@ export default async function ReservarAcomodacaoPage({
             )}
           </div>
 
-          <FormularioReserva acomodacaoInicial={dados.id} fixarAcomodacao />
+          <FormularioReserva
+            acomodacaoInicial={dados.id}
+            fixarAcomodacao
+            dadosIniciais={dadosIniciais}
+          />
         </div>
       </main>
 

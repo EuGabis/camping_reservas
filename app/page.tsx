@@ -2,6 +2,7 @@ import Cabecalho from "@/components/Cabecalho";
 import Rodape from "@/components/Rodape";
 import BotaoWhatsapp from "@/components/BotaoWhatsapp";
 import Carrossel from "@/components/Carrossel";
+import MotorReserva from "@/components/MotorReserva";
 import Galeria from "@/components/Galeria";
 import { ACOMODACOES, ModalidadeId, centavosParaReais } from "@/lib/precos";
 import { COMODIDADES, REGRAS, HORARIOS, CONTATO } from "@/lib/conteudo";
@@ -85,6 +86,16 @@ export default function Home() {
               </a>
             </div>
           </div>
+        </section>
+
+        {/* ===== MOTOR DE RESERVA ===== */}
+        <section className="relative z-20 mx-auto -mt-12 max-w-5xl px-4 sm:-mt-14 sm:px-6">
+          <div className="mb-2 text-center">
+            <p className="inline-block rounded-full bg-white/90 px-4 py-1 text-xs font-semibold uppercase tracking-widest text-mata-700 shadow-sm">
+              Consulte disponibilidade e valores
+            </p>
+          </div>
+          <MotorReserva />
         </section>
 
         {/* ===== SOBRE / O CAMPING ===== */}

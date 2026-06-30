@@ -51,14 +51,28 @@ const inicial: Estado = {
 export default function FormularioReserva({
   acomodacaoInicial,
   fixarAcomodacao = false,
+  dadosIniciais,
 }: {
   acomodacaoInicial?: string;
   fixarAcomodacao?: boolean;
+  dadosIniciais?: {
+    checkin?: string;
+    checkout?: string;
+    adultos?: number;
+    criancas?: number;
+    bebes?: number;
+  };
 } = {}) {
   const base = ACOMODACOES.find((a) => a.id === acomodacaoInicial);
-  const estadoInicial: Estado = base
-    ? { ...inicial, acomodacaoId: base.id, modalidade: base.modalidade }
-    : inicial;
+  const estadoInicial: Estado = {
+    ...inicial,
+    ...(base ? { acomodacaoId: base.id, modalidade: base.modalidade } : {}),
+    ...(dadosIniciais?.checkin ? { checkin: dadosIniciais.checkin } : {}),
+    ...(dadosIniciais?.checkout ? { checkout: dadosIniciais.checkout } : {}),
+    ...(dadosIniciais?.adultos ? { adultos: dadosIniciais.adultos } : {}),
+    ...(dadosIniciais?.criancas != null ? { criancas: dadosIniciais.criancas } : {}),
+    ...(dadosIniciais?.bebes != null ? { bebes: dadosIniciais.bebes } : {}),
+  };
   const [s, setS] = useState<Estado>(estadoInicial);
   const [enviando, setEnviando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
