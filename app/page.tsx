@@ -62,40 +62,38 @@ export default function Home() {
 
       <main id="topo" className="w-full min-w-0">
         {/* ===== HERO ===== */}
-        <section className="relative flex min-h-[92vh] items-center justify-center overflow-hidden">
+        <section className="relative flex min-h-[92vh] items-center justify-center overflow-hidden py-28 sm:py-32">
           <Carrossel slides={fotosHero} />
-          <div className="pointer-events-none absolute inset-0 z-10 bg-gradient-to-b from-mata-900/60 via-mata-900/35 to-mata-900/85" />
-          <div className="relative z-10 mx-auto max-w-3xl px-4 text-center text-areia-50 sm:px-6">
-            <p className="aparece mb-3 text-xs font-medium uppercase tracking-[0.2em] text-areia-200 sm:mb-4 sm:tracking-[0.25em]">
-              São Roque · SP · a 60 km de São Paulo
-            </p>
-            <h1 className="aparece font-display text-3xl leading-tight sm:text-5xl lg:text-6xl">
-              Um lugar especial,{" "}
-              <span className="italic text-terra-400">de campista para campista.</span>
-            </h1>
-            <p className="aparece mx-auto mt-4 max-w-xl text-base text-areia-100 sm:mt-5 sm:text-lg">
-              Um refúgio de 10 hectares com lagos, trilha e cascata — feito por
-              campistas, para quem gosta de natureza de verdade.
-            </p>
-            <div className="aparece mt-6 flex flex-col items-center justify-center gap-3 sm:mt-8 sm:flex-row">
-              <a href="#hospedagem" className="w-full rounded-full bg-terra-500 px-8 py-3.5 text-center font-semibold text-white shadow-lg transition-transform hover:scale-105 hover:bg-terra-600 sm:w-auto">
-                Fazer meu pedido de reserva
-              </a>
-              <a href="#hospedagem" className="w-full rounded-full border border-areia-100/60 px-8 py-3.5 text-center font-semibold text-areia-50 backdrop-blur transition-colors hover:bg-areia-50/10 sm:w-auto">
-                Ver as acomodações
+          <div className="pointer-events-none absolute inset-0 z-10 bg-gradient-to-b from-mata-900/65 via-mata-900/40 to-mata-900/85" />
+          <div className="relative z-20 mx-auto w-full max-w-5xl px-4 text-center text-areia-50 sm:px-6">
+            <div className="mx-auto max-w-3xl">
+              <p className="aparece mb-3 text-xs font-medium uppercase tracking-[0.2em] text-areia-200 sm:mb-4 sm:tracking-[0.25em]">
+                São Roque · SP · a 60 km de São Paulo
+              </p>
+              <h1 className="aparece font-display text-3xl leading-tight sm:text-5xl lg:text-6xl">
+                Um lugar especial,{" "}
+                <span className="italic text-terra-400">de campista para campista.</span>
+              </h1>
+              <p className="aparece mx-auto mt-4 max-w-xl text-base text-areia-100 sm:mt-5 sm:text-lg">
+                Um refúgio de 10 hectares com lagos, trilha e cascata — feito por
+                campistas, para quem gosta de natureza de verdade.
+              </p>
+            </div>
+
+            {/* Motor de reserva — enquadrado dentro do hero */}
+            <div className="aparece mx-auto mt-8 w-full max-w-4xl sm:mt-10">
+              <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-areia-200">
+                Consulte disponibilidade e valores
+              </p>
+              <MotorReserva />
+              <a
+                href="#hospedagem"
+                className="mt-4 inline-block text-sm font-medium text-areia-100 underline-offset-4 hover:text-white hover:underline"
+              >
+                ou veja todas as acomodações →
               </a>
             </div>
           </div>
-        </section>
-
-        {/* ===== MOTOR DE RESERVA ===== */}
-        <section className="relative z-20 mx-auto -mt-12 max-w-5xl px-4 sm:-mt-14 sm:px-6">
-          <div className="mb-2 text-center">
-            <p className="inline-block rounded-full bg-white/90 px-4 py-1 text-xs font-semibold uppercase tracking-widest text-mata-700 shadow-sm">
-              Consulte disponibilidade e valores
-            </p>
-          </div>
-          <MotorReserva />
         </section>
 
         {/* ===== SOBRE / O CAMPING ===== */}
