@@ -81,11 +81,11 @@ export default function Home() {
             </div>
 
             {/* Motor de reserva — enquadrado dentro do hero */}
-            <div className="aparece mx-auto mt-8 w-full max-w-4xl sm:mt-10">
+            <div className="aparece mx-auto mt-14 w-full max-w-4xl sm:mt-20">
               <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-areia-200">
                 Consulte disponibilidade e valores
               </p>
-              <MotorReserva />
+              <MotorReserva sobreEscuro />
               <a
                 href="#hospedagem"
                 className="mt-4 inline-block text-sm font-medium text-areia-100 underline-offset-4 hover:text-white hover:underline"

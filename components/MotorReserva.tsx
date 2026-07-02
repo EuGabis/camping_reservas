@@ -11,6 +11,7 @@ const hojeISO = () => {
 
 export default function MotorReserva({
   inicial,
+  sobreEscuro = false,
 }: {
   inicial?: {
     checkin?: string;
@@ -19,6 +20,7 @@ export default function MotorReserva({
     criancas?: number;
     bebes?: number;
   };
+  sobreEscuro?: boolean;
 }) {
   const router = useRouter();
   const [checkin, setCheckin] = useState(inicial?.checkin ?? "");
@@ -50,14 +52,19 @@ export default function MotorReserva({
   }
 
   const campo =
-    "w-full rounded-xl border border-areia-300 bg-areia-50 px-3 py-2.5 text-sm text-tinta outline-none focus:border-mata-500 focus:ring-2 focus:ring-mata-400/30";
-  const rotulo = "mb-1 block text-[11px] font-semibold uppercase tracking-wide text-tinta-suave";
+    "w-full rounded-xl border px-3 py-2.5 text-sm text-tinta outline-none focus:border-mata-500 focus:ring-2 focus:ring-mata-400/30 " +
+    (sobreEscuro ? "border-white/40 bg-white/90" : "border-areia-300 bg-areia-50");
+  const rotulo =
+    "mb-1 block text-[11px] font-semibold uppercase tracking-wide " +
+    (sobreEscuro ? "text-areia-50" : "text-tinta-suave");
+  const cartao =
+    "rounded-[var(--radius-xl2)] border p-4 sm:p-5 " +
+    (sobreEscuro
+      ? "border-white/25 bg-white/10 shadow-2xl backdrop-blur-md"
+      : "border-areia-200 bg-white shadow-xl");
 
   return (
-    <form
-      onSubmit={consultar}
-      className="rounded-[var(--radius-xl2)] border border-areia-200 bg-white p-4 shadow-xl sm:p-5"
-    >
+    <form onSubmit={consultar} className={cartao}>
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-[1fr_1fr_auto_auto_auto_auto]">
         <div>
           <label className={rotulo}>Entrada</label>
