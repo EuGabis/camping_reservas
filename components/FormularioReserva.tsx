@@ -77,6 +77,18 @@ export default function FormularioReserva({
   const [enviando, setEnviando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
   const [sucesso, setSucesso] = useState<{ codigo: string; valor: number } | null>(null);
+  const [etapa, setEtapa] = useState<"pix" | "confirmacao">("pix");
+  const [pixCopiado, setPixCopiado] = useState(false);
+
+  async function copiarPix() {
+    try {
+      await navigator.clipboard.writeText(CONTATO.pix);
+      setPixCopiado(true);
+      setTimeout(() => setPixCopiado(false), 2500);
+    } catch {
+      setPixCopiado(false);
+    }
+  }
 
   const acomodacoesDaModalidade = useMemo(
     () => ACOMODACOES.filter((a) => a.modalidade === s.modalidade),
@@ -125,6 +137,15 @@ export default function FormularioReserva({
 
     setEnviando(true);
     try {
+      const totalCliente = estimativa?.total ?? 0;
+      const sinalCliente = Math.round(totalCliente / 2);
+      const obsPagamento = `Pagamento: sinal 50% = ${centavosParaReais(
+        sinalCliente
+      )} via PIX (${CONTATO.pix}); restante no check-in.`;
+      const observacoesComPagamento = s.observacoes
+        ? `${s.observacoes}\n${obsPagamento}`
+        : obsPagamento;
+
       const resp = await fetch("/api/reservas", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -139,7 +160,7 @@ export default function FormularioReserva({
           criancas: s.criancas,
           bebes: s.bebes,
           trailer: s.trailer,
-          observacoes: s.observacoes,
+          observacoes: observacoesComPagamento,
           site: s.site,
         }),
       });
@@ -148,6 +169,8 @@ export default function FormularioReserva({
         setErro(dados.erro ?? "Não foi possível enviar agora.");
         return;
       }
+      setEtapa("pix");
+      setPixCopiado(false);
       setSucesso({ codigo: dados.codigo, valor: dados.valorEstimado ?? estimativa?.total ?? 0 });
     } catch {
       setErro("Falha de conexão. Tente novamente ou fale pelo WhatsApp.");
@@ -160,6 +183,71 @@ export default function FormularioReserva({
     ACOMODACOES.find((a) => a.id === s.acomodacaoId)?.nome ?? "";
 
   if (sucesso) {
+    const sinal = Math.round(sucesso.valor / 2);
+    const restante = sucesso.valor - sinal;
+
+    // Etapa 1: pagamento do sinal via PIX
+    if (etapa === "pix") {
+      return (
+        <div className="rounded-xl bg-white p-6 text-center shadow-lg ring-1 ring-areia-200 sm:rounded-xl2 sm:p-8">
+          <p className="text-4xl" aria-hidden>🌲</p>
+          <h3 className="mt-3 text-xl text-mata-800 sm:text-2xl">Falta pouco! Pague o sinal</h3>
+          <p className="mt-2 text-sm text-tinta-suave sm:text-base">
+            Para garantir sua reserva, pague <strong className="text-mata-700">50% agora via PIX</strong>.
+            O restante você paga no check-in.
+          </p>
+
+          <div className="mt-5 rounded-xl bg-mata-800 p-4 text-left text-areia-50">
+            <div className="flex items-baseline justify-between">
+              <span className="text-sm text-areia-200">Sinal agora (50%)</span>
+              <span className="font-display text-2xl font-semibold">{centavosParaReais(sinal)}</span>
+            </div>
+            <div className="mt-1 flex items-baseline justify-between text-xs text-areia-300">
+              <span>Restante no check-in</span>
+              <span>{centavosParaReais(restante)}</span>
+            </div>
+            <div className="mt-1 flex items-baseline justify-between text-xs text-areia-300">
+              <span>Total estimado</span>
+              <span>{centavosParaReais(sucesso.valor)}</span>
+            </div>
+          </div>
+
+          <div className="mt-4 text-left">
+            <label className="mb-1 block text-sm font-medium text-tinta">Chave PIX (e-mail)</label>
+            <div className="flex items-stretch gap-2">
+              <code className="flex-1 overflow-x-auto whitespace-nowrap rounded-lg border border-areia-300 bg-areia-50 px-3 py-2.5 text-sm text-tinta">
+                {CONTATO.pix}
+              </code>
+              <button
+                type="button"
+                onClick={copiarPix}
+                className="shrink-0 rounded-lg bg-mata-700 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-mata-800"
+              >
+                {pixCopiado ? "Copiado!" : "Copiar"}
+              </button>
+            </div>
+          </div>
+
+          <button
+            onClick={() => setEtapa("confirmacao")}
+            className="mt-5 w-full rounded-full bg-terra-500 px-6 py-3.5 font-semibold text-white shadow transition-transform hover:scale-[1.01] hover:bg-terra-600"
+          >
+            Realizei o PIX — enviar comprovante e confirmar
+          </button>
+          <button
+            onClick={() => {
+              setSucesso(null);
+              setS(estadoInicial);
+            }}
+            className="mt-4 block w-full text-sm text-tinta-suave underline"
+          >
+            Voltar
+          </button>
+        </div>
+      );
+    }
+
+    // Etapa 2: pedido confirmado → enviar comprovante pelo WhatsApp
     const msg = encodeURIComponent(
       `Olá! Acabei de enviar um pedido de reserva pelo site.\n\n` +
         `*Código:* ${sucesso.codigo}\n` +
@@ -168,8 +256,9 @@ export default function FormularioReserva({
         `*Entrada:* ${s.checkin}  *Saída:* ${s.checkout}\n` +
         `*Pessoas:* ${s.adultos} adulto(s), ${s.criancas} criança(s), ${s.bebes} até 5 anos\n` +
         `*Valor estimado:* ${centavosParaReais(sucesso.valor)}\n` +
+        `*Sinal (50%):* ${centavosParaReais(sinal)} via PIX\n` +
         (s.observacoes ? `*Observações:* ${s.observacoes}\n` : "") +
-        `\nPodemos confirmar a disponibilidade?`
+        `\nJá realizei o PIX do sinal e vou enviar o comprovante aqui. Podemos confirmar a disponibilidade?`
     );
     return (
       <div className="rounded-xl bg-white p-6 text-center shadow-lg ring-1 ring-areia-200 sm:rounded-xl2 sm:p-8">
@@ -177,7 +266,8 @@ export default function FormularioReserva({
         <h3 className="mt-3 text-xl text-mata-800 sm:text-2xl">Pedido recebido!</h3>
         <p className="mt-2 text-sm text-tinta-suave sm:text-base">
           Seu código é <strong className="text-mata-700">{sucesso.codigo}</strong>. Guarde-o.
-          Para confirmar a disponibilidade e o pagamento de 50%, fale com a gente:
+          Agora envie o <strong className="text-mata-700">comprovante do PIX</strong> pelo WhatsApp
+          para confirmarmos sua reserva:
         </p>
         <a
           href={`https://wa.me/${CONTATO.whatsapp}?text=${msg}`}
@@ -185,7 +275,7 @@ export default function FormularioReserva({
           rel="noopener noreferrer"
           className="mt-5 inline-block rounded-full bg-[#25D366] px-7 py-3 font-semibold text-white shadow transition-transform hover:scale-105"
         >
-          Confirmar pelo WhatsApp
+          Enviar comprovante pelo WhatsApp
         </a>
         <button
           onClick={() => {

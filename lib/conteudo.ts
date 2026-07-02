@@ -5,6 +5,7 @@ export const CONTATO = {
   nome: "Vapo Camping EcoPark",
   whatsapp: process.env.NEXT_PUBLIC_WHATSAPP ?? "5511986659885",
   whatsappExibicao: "(11) 98665-9885",
+  pix: "pix@vapocamping.com.br",
   endereco: "Alameda Nossa Senhora da Guadalupe, 953",
   bairro: "Alto da Serra — São Roque, SP",
   cep: "18143-410",
