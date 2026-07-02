@@ -21,7 +21,7 @@ export const reservaSchema = z
     criancas: z.coerce.number().int().min(0).max(20),
     bebes: z.coerce.number().int().min(0).max(20),
     trailer: z.boolean().default(false),
-    observacoes: z.string().trim().max(800).optional().or(z.literal("")),
+    observacoes: z.string().trim().max(2000).optional().or(z.literal("")),
     // honeypot anti-spam: deve vir vazio
     site: z.string().max(0).optional(),
   })

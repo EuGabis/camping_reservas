@@ -16,6 +16,12 @@ const hojeISO = () => {
   return new Date(d.getTime() - off * 60000).toISOString().slice(0, 10);
 };
 
+interface Hospede {
+  nome: string;
+  nascimento: string; // YYYY-MM-DD
+  responsavel: string; // preenchido quando é criança
+}
+
 interface Estado {
   modalidade: ModalidadeId;
   acomodacaoId: string;
@@ -29,7 +35,26 @@ interface Estado {
   email: string;
   telefone: string;
   observacoes: string;
+  hospedes: Hospede[];
   site: string; // honeypot
+}
+
+// Idade em anos a partir de uma data ISO (YYYY-MM-DD). null se vazio/inválido.
+function idadeAnos(nascimento: string): number | null {
+  if (!nascimento) return null;
+  const nasc = new Date(nascimento + "T00:00:00");
+  if (Number.isNaN(nasc.getTime())) return null;
+  const hoje = new Date();
+  let idade = hoje.getFullYear() - nasc.getFullYear();
+  const m = hoje.getMonth() - nasc.getMonth();
+  if (m < 0 || (m === 0 && hoje.getDate() < nasc.getDate())) idade--;
+  return idade;
+}
+
+// Nome "sem abreviação": ao menos 2 palavras, cada uma com 2+ letras.
+function nomeCompletoValido(nome: string): boolean {
+  const partes = nome.trim().split(/\s+/).filter(Boolean);
+  return partes.length >= 2 && partes.every((p) => p.replace(/[.]/g, "").length >= 2);
 }
 
 const inicial: Estado = {
@@ -45,6 +70,7 @@ const inicial: Estado = {
   email: "",
   telefone: "",
   observacoes: "",
+  hospedes: [],
   site: "",
 };
 
@@ -122,6 +148,18 @@ export default function FormularioReserva({
     setS((prev) => ({ ...prev, [campo]: valor }));
   }
 
+  // Quantos hóspedes além do cabeça da reserva.
+  const numHospedesExtras = Math.max(0, s.adultos + s.criancas + s.bebes - 1);
+
+  function setHospede(i: number, campo: keyof Hospede, valor: string) {
+    setS((prev) => {
+      const arr = [...prev.hospedes];
+      while (arr.length <= i) arr.push({ nome: "", nascimento: "", responsavel: "" });
+      arr[i] = { ...arr[i], [campo]: valor };
+      return { ...prev, hospedes: arr };
+    });
+  }
+
   async function enviar(e: React.FormEvent) {
     e.preventDefault();
     setErro(null);
@@ -135,6 +173,23 @@ export default function FormularioReserva({
       return;
     }
 
+    // Valida hóspedes preenchidos (os demais são opcionais).
+    const hospedesPreenchidos: Hospede[] = [];
+    for (let i = 0; i < numHospedesExtras; i++) {
+      const h = s.hospedes[i];
+      if (!h || (!h.nome.trim() && !h.nascimento)) continue; // vazio: ignora
+      if (h.nome.trim() && !nomeCompletoValido(h.nome)) {
+        setErro(`Hóspede ${i + 2}: informe o nome completo, sem abreviação.`);
+        return;
+      }
+      const idade = idadeAnos(h.nascimento);
+      if (idade !== null && idade < 18 && h.nome.trim() && !h.responsavel.trim()) {
+        setErro(`Hóspede ${i + 2} é menor de idade: informe o responsável.`);
+        return;
+      }
+      hospedesPreenchidos.push(h);
+    }
+
     setEnviando(true);
     try {
       const totalCliente = estimativa?.total ?? 0;
@@ -142,9 +197,26 @@ export default function FormularioReserva({
       const obsPagamento = `Pagamento: sinal 50% = ${centavosParaReais(
         sinalCliente
       )} via PIX (${CONTATO.pix}); restante no check-in.`;
-      const observacoesComPagamento = s.observacoes
-        ? `${s.observacoes}\n${obsPagamento}`
-        : obsPagamento;
+
+      const blocoHospedes =
+        hospedesPreenchidos.length > 0
+          ? "Hóspedes:\n" +
+            [`- ${s.nome} (cabeça da reserva)`]
+              .concat(
+                hospedesPreenchidos.map((h) => {
+                  const nasc = h.nascimento ? ` — nasc. ${h.nascimento}` : "";
+                  const resp = h.responsavel.trim()
+                    ? ` — responsável: ${h.responsavel.trim()}`
+                    : "";
+                  return `- ${h.nome || "(sem nome)"}${nasc}${resp}`;
+                })
+              )
+              .join("\n")
+          : "";
+
+      const observacoesComPagamento = [s.observacoes, blocoHospedes, obsPagamento]
+        .filter((p) => p && p.trim())
+        .join("\n\n");
 
       const resp = await fetch("/api/reservas", {
         method: "POST",
@@ -489,6 +561,68 @@ export default function FormularioReserva({
           required
         />
       </div>
+
+      {numHospedesExtras > 0 && (
+        <div className="mb-5 rounded-xl border border-areia-200 bg-areia-50/60 p-4">
+          <p className="text-sm font-semibold text-tinta">
+            Demais hóspedes <span className="font-normal text-tinta-suave">(opcional)</span>
+          </p>
+          <p className="mt-0.5 mb-3 text-xs text-tinta-suave">
+            Você é o cabeça da reserva (dados acima). Se puder, informe os outros hóspedes.
+            Nome completo, sem abreviação. Para crianças, informe o responsável.
+          </p>
+
+          <div className="flex flex-col gap-4">
+            {Array.from({ length: numHospedesExtras }).map((_, i) => {
+              const h = s.hospedes[i] ?? { nome: "", nascimento: "", responsavel: "" };
+              const idade = idadeAnos(h.nascimento);
+              const ehCrianca = idade !== null && idade < 18;
+              return (
+                <div key={i} className="rounded-lg border border-areia-200 bg-white p-3">
+                  <p className="mb-2 text-xs font-medium text-tinta-suave">
+                    Hóspede {i + 2}
+                    {idade !== null ? ` · ${idade} ano(s)` : ""}
+                  </p>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div>
+                      <label className={rotulo}>Nome completo</label>
+                      <input
+                        className={campo}
+                        value={h.nome}
+                        onChange={(e) => setHospede(i, "nome", e.target.value)}
+                        placeholder="Nome e sobrenome"
+                      />
+                    </div>
+                    <div>
+                      <label className={rotulo}>Data de nascimento</label>
+                      <input
+                        type="date"
+                        className={campo}
+                        max={hojeISO()}
+                        value={h.nascimento}
+                        onChange={(e) => setHospede(i, "nascimento", e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  {ehCrianca && (
+                    <div className="mt-3">
+                      <label className={rotulo}>
+                        Responsável <span className="font-normal text-tinta-suave">(pai/mãe ou cabeça da reserva)</span>
+                      </label>
+                      <input
+                        className={campo}
+                        value={h.responsavel}
+                        onChange={(e) => setHospede(i, "responsavel", e.target.value)}
+                        placeholder="Nome do responsável"
+                      />
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       <div className="mb-5">
         <label className={rotulo}>Alguma observação? <span className="font-normal text-tinta-suave">(opcional)</span></label>
