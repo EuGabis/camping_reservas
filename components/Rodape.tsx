@@ -33,7 +33,7 @@ export default function Rodape() {
         <div className="text-sm leading-relaxed">
           <p className="font-display text-lg text-areia-50">Fale conosco</p>
           <a
-            href={`https://wa.me/${CONTATO.whatsapp}`}
+            href={`https://wa.me/${CONTATO.whatsapp}?text=${encodeURIComponent(CONTATO.msgWhatsapp)}`}
             target="_blank"
             rel="noopener noreferrer"
             className="mt-3 block text-areia-200 hover:text-white"
@@ -46,6 +46,9 @@ export default function Rodape() {
             </a>
             <a href={CONTATO.facebook} target="_blank" rel="noopener noreferrer" className="hover:text-white">
               Facebook
+            </a>
+            <a href={CONTATO.youtube} target="_blank" rel="noopener noreferrer" className="hover:text-white">
+              YouTube
             </a>
           </div>
         </div>

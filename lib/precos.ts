@@ -113,11 +113,6 @@ export function centavosParaReais(centavos: number): string {
   });
 }
 
-function ehFimDeSemana(data: Date): boolean {
-  const dia = data.getUTCDay(); // 0 dom, 5 sex, 6 sáb
-  return dia === 5 || dia === 6 || dia === 0;
-}
-
 export interface EntradaCalculo {
   acomodacaoId: string;
   checkin: string; // YYYY-MM-DD
@@ -177,21 +172,19 @@ export function calcularEstimativa(entrada: EntradaCalculo): ResultadoCalculo {
   let total = 0;
 
   if (acomodacao.modalidade === "camping") {
-    // Diária varia por dia: fim de semana é mais cara.
-    const inicio = new Date(entrada.checkin + "T00:00:00Z");
-    let adultosTotal = 0;
-    let criancasTotal = 0;
-    for (let i = 0; i < noites; i++) {
-      const dia = new Date(inicio);
-      dia.setUTCDate(inicio.getUTCDate() + i);
-      const diaria = ehFimDeSemana(dia)
-        ? acomodacao.adultoUmaNoite
-        : acomodacao.adultoSemana;
-      adultosTotal += diaria * entrada.adultos;
-      criancasTotal += Math.round(diaria / 2) * entrada.criancas;
-    }
-    total = adultosTotal + criancasTotal;
-    detalhes.push(`${entrada.adultos} adulto(s) × ${noites} noite(s)`);
+    // Tarifa por noite: R$54 para estadias de 2+ noites; R$74 só na noite única
+    // (ex.: sábado → domingo). O mesmo critério das demais acomodações.
+    const tarifa = noites >= 2 ? acomodacao.adultoSemana : acomodacao.adultoUmaNoite;
+
+    const custoAdultosPorNoite = tarifa * entrada.adultos;
+    const custoCriancasPorNoite = Math.round(tarifa / 2) * entrada.criancas;
+    total = (custoAdultosPorNoite + custoCriancasPorNoite) * noites;
+
+    detalhes.push(
+      `${entrada.adultos} adulto(s) × ${noites} noite(s) (${centavosParaReais(
+        tarifa
+      )}/noite)`
+    );
     if (entrada.criancas > 0)
       detalhes.push(`${entrada.criancas} criança(s) 6–12 anos (meia diária)`);
 

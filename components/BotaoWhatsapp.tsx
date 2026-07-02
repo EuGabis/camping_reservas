@@ -1,9 +1,7 @@
 import { CONTATO } from "@/lib/conteudo";
 
 export default function BotaoWhatsapp() {
-  const msg = encodeURIComponent(
-    "Olá! Vim pelo site e gostaria de informações sobre o Vapo Camping."
-  );
+  const msg = encodeURIComponent(CONTATO.msgWhatsapp);
   return (
     <a
       href={`https://wa.me/${CONTATO.whatsapp}?text=${msg}`}

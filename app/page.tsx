@@ -317,14 +317,24 @@ export default function Home() {
                 <p>{CONTATO.bairro}</p>
                 <p>CEP {CONTATO.cep}</p>
               </address>
-              <a
-                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(CONTATO.endereco + ", " + CONTATO.bairro)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-5 inline-block rounded-full bg-mata-700 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-mata-800 sm:mt-6 sm:text-base"
-              >
-                Abrir no Google Maps
-              </a>
+              <div className="mt-5 flex flex-wrap gap-3 sm:mt-6">
+                <a
+                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(CONTATO.endereco + ", " + CONTATO.bairro)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block rounded-full bg-mata-700 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-mata-800 sm:text-base"
+                >
+                  Abrir no Google Maps
+                </a>
+                <a
+                  href={`https://www.waze.com/ul?q=${encodeURIComponent(CONTATO.endereco + ", " + CONTATO.bairro)}&navigate=yes`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block rounded-full border border-mata-700 px-6 py-3 text-sm font-semibold text-mata-700 transition-colors hover:bg-mata-700 hover:text-white sm:text-base"
+                >
+                  Abrir no Waze
+                </a>
+              </div>
             </div>
             <div className="overflow-hidden rounded-xl2 shadow-md ring-1 ring-areia-200">
               <iframe

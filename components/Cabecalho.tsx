@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { LOGO } from "@/lib/conteudo";
+import { CONTATO, LOGO } from "@/lib/conteudo";
+
+const linkWhatsapp = `https://wa.me/${CONTATO.whatsapp}?text=${encodeURIComponent(CONTATO.msgWhatsapp)}`;
 
 const LINKS = [
   { href: "#sobre", label: "O parque" },
@@ -62,6 +64,16 @@ export default function Cabecalho() {
             </a>
           ))}
           <a
+            href={linkWhatsapp}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={`text-sm font-medium transition-opacity hover:opacity-70 ${
+              solido ? "text-mata-700" : "text-areia-50"
+            }`}
+          >
+            WhatsApp
+          </a>
+          <a
             href="#hospedagem"
             className="rounded-full bg-terra-500 px-5 py-2 text-sm font-semibold text-white shadow-sm transition-transform hover:scale-[1.03] hover:bg-terra-600"
           >
@@ -97,6 +109,15 @@ export default function Cabecalho() {
               {l.label}
             </a>
           ))}
+          <a
+            href={linkWhatsapp}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => setAberto(false)}
+            className="block py-2 text-tinta"
+          >
+            WhatsApp
+          </a>
           <a
             href="#hospedagem"
             onClick={() => setAberto(false)}
