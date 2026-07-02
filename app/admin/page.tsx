@@ -36,7 +36,7 @@ export default async function PainelAdmin() {
       <header className="border-b border-areia-200 bg-areia-50">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-5 sm:py-4">
           <div>
-            <p className="font-display text-base text-mata-800 sm:text-xl">🌿 Painel · Reservas</p>
+            <p className="font-display text-base text-mata-800 sm:text-xl">Painel · Reservas</p>
             <p className="text-xs text-tinta-suave">{sessao.email}</p>
           </div>
           <form action={sair}>

@@ -190,7 +190,22 @@ export default function FormularioReserva({
     if (etapa === "pix") {
       return (
         <div className="rounded-xl bg-white p-6 text-center shadow-lg ring-1 ring-areia-200 sm:rounded-xl2 sm:p-8">
-          <p className="text-4xl" aria-hidden>🌲</p>
+          <svg
+            className="mx-auto text-mata-700"
+            width="40"
+            height="40"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.7"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden
+          >
+            <rect x="3" y="4" width="18" height="7" rx="1.5" />
+            <rect x="3" y="14" width="7" height="6" rx="1.5" />
+            <path d="M14 15h6M14 18.5h4" />
+          </svg>
           <h3 className="mt-3 text-xl text-mata-800 sm:text-2xl">Falta pouco! Pague o sinal</h3>
           <p className="mt-2 text-sm text-tinta-suave sm:text-base">
             Para garantir sua reserva, pague <strong className="text-mata-700">50% agora via PIX</strong>.
@@ -262,7 +277,21 @@ export default function FormularioReserva({
     );
     return (
       <div className="rounded-xl bg-white p-6 text-center shadow-lg ring-1 ring-areia-200 sm:rounded-xl2 sm:p-8">
-        <p className="text-4xl" aria-hidden>🌲</p>
+        <svg
+          className="mx-auto text-mata-700"
+          width="40"
+          height="40"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.7"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden
+        >
+          <circle cx="12" cy="12" r="9" />
+          <path d="M8.5 12.5l2.5 2.5 4.5-5" />
+        </svg>
         <h3 className="mt-3 text-xl text-mata-800 sm:text-2xl">Pedido recebido!</h3>
         <p className="mt-2 text-sm text-tinta-suave sm:text-base">
           Seu código é <strong className="text-mata-700">{sucesso.codigo}</strong>. Guarde-o.
