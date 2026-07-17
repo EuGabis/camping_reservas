@@ -7,6 +7,16 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  // Imagens gerenciadas no CRM (Supabase Storage) exibidas via next/image.
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "*.supabase.co",
+        pathname: "/storage/v1/object/public/**",
+      },
+    ],
+  },
   // Fixa a raiz do projeto (há outros lockfiles na home do usuário).
   outputFileTracingRoot: __dirname,
   async headers() {

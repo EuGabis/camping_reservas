@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Cabecalho from "@/components/Cabecalho";
 import Rodape from "@/components/Rodape";
 import BotaoWhatsapp from "@/components/BotaoWhatsapp";
@@ -6,6 +7,7 @@ import MotorReserva from "@/components/MotorReserva";
 import Galeria from "@/components/Galeria";
 import { ACOMODACOES, ModalidadeId, centavosParaReais } from "@/lib/precos";
 import { COMODIDADES, REGRAS, HORARIOS, CONTATO } from "@/lib/conteudo";
+import { buscarConteudoCRM, periodoCampanha, type CampanhaCRM } from "@/lib/conteudo-crm";
 import {
   fotosHero,
   fotosParque,
@@ -54,7 +56,21 @@ const MODALIDADES_BLOCO = [
   },
 ];
 
-export default function Home() {
+export default async function Home() {
+  // Conteúdo gerenciado no CRM (campanhas, hero e fotos extras). Se não houver
+  // nada publicado, o site fica exatamente como sempre foi.
+  const crm = await buscarConteudoCRM();
+  const slidesHero = crm.hero
+    ? [{ src: crm.hero, alt: "Vapo Camping EcoPark" }, ...fotosHero]
+    : fotosHero;
+  const galeriaCompleta = [
+    ...crm.galeria.map((g, i) => ({
+      src: g.url,
+      alt: g.titulo ?? `Vapo Camping EcoPark — foto ${i + 1}`,
+    })),
+    ...fotosGaleria,
+  ];
+
   return (
     <>
       <Cabecalho />
@@ -63,7 +79,7 @@ export default function Home() {
       <main id="topo" className="w-full min-w-0">
         {/* ===== HERO ===== */}
         <section className="relative flex min-h-[92vh] items-center justify-center overflow-hidden py-28 sm:py-32">
-          <Carrossel slides={fotosHero} />
+          <Carrossel slides={slidesHero} />
           <div className="pointer-events-none absolute inset-0 z-10 bg-gradient-to-b from-mata-900/65 via-mata-900/40 to-mata-900/85" />
           <div className="relative z-20 mx-auto w-full max-w-5xl px-4 text-center text-areia-50 sm:px-6">
             <div className="mx-auto max-w-3xl">
@@ -95,6 +111,27 @@ export default function Home() {
             </div>
           </div>
         </section>
+
+        {/* ===== CAMPANHAS (gerenciadas no CRM) ===== */}
+        {crm.campanhas.length > 0 && (
+          <section id="ofertas" className="bg-terra-500/5 py-16 sm:py-24">
+            <div className="mx-auto max-w-6xl px-4 sm:px-6">
+              <div className="mx-auto max-w-2xl text-center">
+                <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-terra-500">
+                  Ofertas do momento
+                </p>
+                <h2 className="text-2xl text-mata-800 sm:text-3xl lg:text-4xl">
+                  Pacotes e campanhas
+                </h2>
+              </div>
+              <div className="mt-10 grid gap-5 sm:mt-12 md:grid-cols-2 lg:grid-cols-3">
+                {crm.campanhas.map((c) => (
+                  <CartaoCampanha key={c.titulo} campanha={c} />
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
 
         {/* ===== SOBRE / O CAMPING ===== */}
         <section id="sobre" className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24 lg:py-28">
@@ -261,11 +298,11 @@ export default function Home() {
             <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-terra-500">Galeria</p>
             <h2 className="text-2xl text-mata-800 sm:text-3xl lg:text-4xl">Um passeio pelo Vapo Camping</h2>
             <p className="mt-4 text-base text-tinta-suave sm:text-lg">
-              {fotosGaleria.length} momentos do parque. Toque em qualquer foto para ver em tela cheia.
+              {galeriaCompleta.length} momentos do parque. Toque em qualquer foto para ver em tela cheia.
             </p>
           </div>
           <div className="mt-10 sm:mt-12">
-            <Galeria fotos={fotosGaleria} modo="mosaico" />
+            <Galeria fotos={galeriaCompleta} modo="mosaico" />
           </div>
         </section>
 
@@ -351,5 +388,49 @@ export default function Home() {
 
       <Rodape />
     </>
+  );
+}
+
+// Cartão de uma campanha publicada no CRM (área Site do painel).
+function CartaoCampanha({ campanha }: { campanha: CampanhaCRM }) {
+  const periodo = periodoCampanha(campanha);
+  return (
+    <article className="flex flex-col overflow-hidden rounded-xl2 bg-white ring-1 ring-areia-200">
+      {campanha.imagem_url && (
+        <div className="relative aspect-[16/9] w-full">
+          <Image
+            src={campanha.imagem_url}
+            alt={campanha.titulo}
+            fill
+            sizes="(max-width: 768px) 100vw, 33vw"
+            className="object-cover"
+          />
+        </div>
+      )}
+      <div className="flex flex-1 flex-col p-5 sm:p-6">
+        <h3 className="font-display text-lg text-mata-800 sm:text-xl">{campanha.titulo}</h3>
+        {campanha.descricao && (
+          <p className="mt-2 flex-1 text-sm leading-relaxed text-tinta-suave">
+            {campanha.descricao}
+          </p>
+        )}
+        <div className="mt-4 space-y-1">
+          {periodo && (
+            <p className="text-xs font-medium uppercase tracking-wider text-tinta-suave">
+              Válido: {periodo}
+            </p>
+          )}
+          {campanha.preco && (
+            <p className="font-display text-lg font-semibold text-terra-500">{campanha.preco}</p>
+          )}
+        </div>
+        <a
+          href="/#topo"
+          className="mt-4 inline-block rounded-full bg-mata-700 px-5 py-2 text-center text-sm font-semibold text-white transition-colors hover:bg-mata-800"
+        >
+          Consultar datas e reservar
+        </a>
+      </div>
+    </article>
   );
 }
