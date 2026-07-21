@@ -148,6 +148,7 @@ export default async function ReservarAcomodacaoPage({
           <FormularioReserva
             acomodacaoInicial={dados.id}
             fixarAcomodacao
+            escolherInicial={String(sp.escolher ?? "") === "1"}
             dadosIniciais={dadosIniciais}
           />
         </div>

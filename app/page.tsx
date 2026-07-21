@@ -189,7 +189,7 @@ export default async function Home() {
                       <span className="text-sm font-normal text-tinta-suave">/ pessoa · noite</span>
                     </p>
                     <a
-                      href={`/reservar/${m.reservarId}`}
+                      href={`/reservar/${m.reservarId}${m.id === "pousada" ? "?escolher=1" : ""}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="mt-4 inline-block rounded-full bg-mata-700 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-mata-800"

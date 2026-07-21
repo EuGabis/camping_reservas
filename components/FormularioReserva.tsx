@@ -77,10 +77,13 @@ const inicial: Estado = {
 export default function FormularioReserva({
   acomodacaoInicial,
   fixarAcomodacao = false,
+  escolherInicial = false,
   dadosIniciais,
 }: {
   acomodacaoInicial?: string;
   fixarAcomodacao?: boolean;
+  // Abre já destravado no seletor de acomodação (ex.: "Reservar Pousada" da home).
+  escolherInicial?: boolean;
   dadosIniciais?: {
     checkin?: string;
     checkout?: string;
@@ -107,7 +110,7 @@ export default function FormularioReserva({
   const [pixCopiado, setPixCopiado] = useState(false);
   // Na página de uma acomodação específica ela vem travada, mas o visitante pode
   // destravar e escolher outra sem precisar voltar.
-  const [trocando, setTrocando] = useState(false);
+  const [trocando, setTrocando] = useState(escolherInicial);
   const travado = fixarAcomodacao && !trocando;
 
   async function copiarPix() {
