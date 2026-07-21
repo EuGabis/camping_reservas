@@ -6,7 +6,7 @@ import Carrossel from "@/components/Carrossel";
 import MotorReserva from "@/components/MotorReserva";
 import Galeria from "@/components/Galeria";
 import { ACOMODACOES, ModalidadeId, centavosParaReais } from "@/lib/precos";
-import { COMODIDADES, REGRAS, HORARIOS, CONTATO } from "@/lib/conteudo";
+import { SOBRE, COMODIDADES, REGRAS, HORARIOS, CONTATO } from "@/lib/conteudo";
 import { buscarConteudoCRM, periodoCampanha, type CampanhaCRM } from "@/lib/conteudo-crm";
 import {
   fotosHero,
@@ -91,7 +91,7 @@ export default async function Home() {
                 <span className="italic text-terra-400">de campista para campista.</span>
               </h1>
               <p className="aparece mx-auto mt-4 max-w-xl text-base text-areia-100 sm:mt-5 sm:text-lg">
-                Um refúgio de 10 hectares com lagos, trilha e cascata — feito por
+                Um refúgio de 10 hectares com lagos, trilha e muito verde, feito por
                 campistas, para quem gosta de natureza de verdade.
               </p>
             </div>
@@ -135,8 +135,17 @@ export default async function Home() {
 
         {/* ===== SOBRE / O CAMPING ===== */}
         <section id="sobre" className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24 lg:py-28">
-          <div className="mx-auto mb-10 max-w-2xl text-center sm:mb-12">
+          <div className="mx-auto mb-10 max-w-3xl text-center sm:mb-12">
             <p className="mb-4 text-sm font-semibold uppercase tracking-widest text-terra-500">O camping</p>
+
+            <div className="mb-10 space-y-4 text-left">
+              {SOBRE.paragrafos.map((p) => (
+                <p key={p.slice(0, 40)} className="text-base leading-relaxed text-tinta-suave sm:text-lg">
+                  {p}
+                </p>
+              ))}
+            </div>
+
             <dl className="mx-auto grid max-w-md grid-cols-3 gap-4">
               {[
                 ["10 ha", "de mata nativa"],

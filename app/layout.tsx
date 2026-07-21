@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     template: "%s · Vapo Camping EcoPark",
   },
   description:
-    "Um refúgio na mata nativa de São Roque, a 60 km de São Paulo. Camping, hotel de barracas e pousada com lagos, trilha e cascata. Faça seu pedido de reserva.",
+    "Um refúgio na mata nativa de São Roque, a 60 km de São Paulo. Camping, hotel de barracas e pousada com lagos, trilha e muito verde. Faça seu pedido de reserva.",
   keywords: [
     "camping São Roque",
     "camping perto de São Paulo",
