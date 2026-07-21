@@ -105,6 +105,10 @@ export default function FormularioReserva({
   const [sucesso, setSucesso] = useState<{ codigo: string; valor: number } | null>(null);
   const [etapa, setEtapa] = useState<"pix" | "confirmacao">("pix");
   const [pixCopiado, setPixCopiado] = useState(false);
+  // Na página de uma acomodação específica ela vem travada, mas o visitante pode
+  // destravar e escolher outra sem precisar voltar.
+  const [trocando, setTrocando] = useState(false);
+  const travado = fixarAcomodacao && !trocando;
 
   async function copiarPix() {
     try {
@@ -413,13 +417,22 @@ export default function FormularioReserva({
         </label>
       </div>
 
-      {fixarAcomodacao && (
-        <div className="mb-5 rounded-lg bg-mata-700/10 px-3 py-2.5 text-sm text-mata-800">
-          Acomodação: <strong>{acomodacaoNome || "selecionada"}</strong>
+      {travado && (
+        <div className="mb-5 flex flex-wrap items-center justify-between gap-2 rounded-lg bg-mata-700/10 px-3 py-2.5 text-sm text-mata-800">
+          <span>
+            Acomodação: <strong>{acomodacaoNome || "selecionada"}</strong>
+          </span>
+          <button
+            type="button"
+            onClick={() => setTrocando(true)}
+            className="font-semibold text-terra-600 underline underline-offset-2 transition hover:text-terra-500"
+          >
+            Trocar
+          </button>
         </div>
       )}
 
-      {!fixarAcomodacao && (
+      {!travado && (
         <div className="mb-5 grid grid-cols-1 gap-2 xs:grid-cols-3 sm:grid-cols-3">
           {(Object.keys(MODALIDADES) as ModalidadeId[]).map((m) => (
             <button
@@ -438,7 +451,7 @@ export default function FormularioReserva({
         </div>
       )}
 
-      {!fixarAcomodacao && acomodacoesDaModalidade.length > 1 && (
+      {!travado && acomodacoesDaModalidade.length > 1 && (
         <div className="mb-4">
           <label className={rotulo}>Acomodação</label>
           <select
