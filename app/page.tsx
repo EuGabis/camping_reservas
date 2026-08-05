@@ -5,6 +5,7 @@ import BotaoWhatsapp from "@/components/BotaoWhatsapp";
 import Carrossel from "@/components/Carrossel";
 import MotorReserva from "@/components/MotorReserva";
 import Galeria from "@/components/Galeria";
+import DetalhesPousada from "@/components/DetalhesPousada";
 import { ACOMODACOES, ModalidadeId, centavosParaReais } from "@/lib/precos";
 import { SOBRE, COMODIDADES, REGRAS, HORARIOS, CONTATO } from "@/lib/conteudo";
 import { buscarConteudoCRM, periodoCampanha, type CampanhaCRM } from "@/lib/conteudo-crm";
@@ -208,6 +209,9 @@ export default async function Home() {
             </div>
           </div>
         </section>
+
+        {/* ===== DETALHES DA POUSADA ===== */}
+        <DetalhesPousada />
 
         {/* ===== ESTRUTURA ===== */}
         <section id="estrutura" className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24 lg:py-28">

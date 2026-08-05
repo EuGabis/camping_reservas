@@ -56,6 +56,41 @@ export const HORARIOS = {
   checkout: "Camping até 18h · Quartos e Hotel de Barracas até 12h",
 };
 
+// Informações detalhadas da Pousada Casa Camping (quartos, regras e o que está
+// incluso). Os preços vêm de lib/precos.ts (fonte única); aqui ficam só os
+// textos qualitativos. `banheiro` é indexado pelo id da acomodação.
+export const POUSADA = {
+  intro:
+    "Suíte e quartos com vista para o verde, para quem prefere o conforto de quatro paredes com a mata logo ali fora.",
+  banheiro: {
+    "suite-vista": "Banheiro privativo",
+    "quarto-vista": "Banheiro compartilhado",
+    "quarto-corredor": "Banheiro compartilhado · sem janela",
+  } as Record<string, string>,
+  ocupacao: [
+    "Mínimo de 2 adultos e máximo de 3 pessoas por quarto",
+    "Valor por pessoa, a partir de 13 anos",
+    "Crianças de 6 a 12 anos pagam meia diária · até 5 anos, cortesia",
+    "Funcionamento de quinta a segunda (fechado terça e quarta)",
+    "Não é permitido pet nos quartos",
+  ],
+  horarios: [
+    ["Check-in", "14h às 21h (aos sábados até 16h)"],
+    ["Check-out", "8h30 às 12h"],
+    ["Áreas sociais", "Entrada a partir das 8h30 · saída até 18h"],
+    ["Pagamento", "50% na reserva; o restante no check-in em até 2x sem juros no cartão"],
+  ] as [string, string][],
+  incluso: [
+    "Diária do camping",
+    "Cozinha e sala compartilhada, exclusivas para hóspedes dos quartos",
+  ],
+  naoIncluso: ["Café da manhã", "Cobertores", "Roupas de cama e banho"],
+  observacoes: [
+    "Banheiro compartilhado de uso exclusivo do quarto com vista e do quarto de corredor (2 unidades).",
+    "Roupa de cama disponível mediante taxa — consulte a equipe.",
+  ],
+};
+
 // Logo em /public/logo.png. As fotos do parque são lidas automaticamente
 // de /public/fotos em lib/fotos.ts.
 export const LOGO = "/logo.png";
