@@ -5,8 +5,7 @@ import Rodape from "@/components/Rodape";
 import BotaoWhatsapp from "@/components/BotaoWhatsapp";
 import MotorReserva from "@/components/MotorReserva";
 import { ACOMODACOES, centavosParaReais, diferencaNoites } from "@/lib/precos";
-import { consultarDisponibilidade } from "@/lib/facility";
-import { categoriaDoSite, escolherTarifa, valorTotalTarifa } from "@/lib/facility-map";
+import { buscarDisponibilidadeCRM } from "@/lib/crm";
 import {
   fotosCamping,
   fotosBarracas,
@@ -50,8 +49,8 @@ export default async function DisponibilidadePage({
   const valido = Boolean(checkin && checkout && checkout > checkin);
   const noites = valido ? diferencaNoites(checkin, checkout) : 0;
 
-  // Disponibilidade e preços REAIS do Facility (uma consulta traz todas as
-  // categorias). Em falha, mostramos um aviso em vez de derrubar a página.
+  // Disponibilidade e preços reais, consultados no CRM (que fala com o Facility),
+  // uma chamada por acomodação em paralelo. Em falha geral, mostramos um aviso.
   type Resultado = {
     a: (typeof ACOMODACOES)[number];
     ok: boolean;
@@ -61,34 +60,26 @@ export default async function DisponibilidadePage({
   let resultados: Resultado[] = [];
   let erroFacility = false;
   if (valido) {
-    try {
-      const cats = await consultarDisponibilidade({
-        checkin,
-        checkout,
-        numeroAdultos: adultos,
-        numeroCriancas1: criancas,
-        numeroCriancas2: bebes,
-      });
-      resultados = ACOMODACOES.map((a) => {
-        const catId = categoriaDoSite(a.id, false);
-        const categoria = cats.find((c) => c.id === catId);
-        if (!categoria || categoria.disponibilidade <= 0) {
-          return { a, ok: false, totalCentavos: 0, disponivel: categoria?.disponibilidade ?? 0 };
-        }
-        const tarifa = escolherTarifa(categoria, a.id, noites);
-        if (!tarifa) {
-          return { a, ok: false, totalCentavos: 0, disponivel: categoria.disponibilidade };
-        }
-        return {
-          a,
-          ok: true,
-          totalCentavos: Math.round(valorTotalTarifa(tarifa) * 100),
-          disponivel: categoria.disponibilidade,
-        };
-      });
-    } catch (e) {
-      console.error("[Facility] disponibilidade page:", e);
-      erroFacility = true;
+    const respostas = await Promise.all(
+      ACOMODACOES.map((a) =>
+        buscarDisponibilidadeCRM({
+          acomodacaoId: a.id,
+          checkin,
+          checkout,
+          adultos,
+          criancas,
+          bebes,
+          trailer: false,
+        }).then((r) => ({ a, r })),
+      ),
+    );
+    erroFacility = respostas.every(({ r }) => !r.ok && !r.esgotado);
+    if (!erroFacility) {
+      resultados = respostas.map(({ a, r }) =>
+        r.ok && typeof r.valorTotal === "number"
+          ? { a, ok: true, totalCentavos: Math.round(r.valorTotal * 100), disponivel: r.disponivel ?? 0 }
+          : { a, ok: false, totalCentavos: 0, disponivel: r.disponivel ?? 0 },
+      );
     }
   }
   const queryReserva = new URLSearchParams({

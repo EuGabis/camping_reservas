@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { consultarDisponibilidade } from "@/lib/facility";
-import { categoriaDoSite, escolherTarifa, valorTotalTarifa } from "@/lib/facility-map";
-import { diferencaNoites, acomodacaoPorId } from "@/lib/precos";
+import { buscarDisponibilidadeCRM } from "@/lib/crm";
+import { acomodacaoPorId } from "@/lib/precos";
 import { permitido } from "@/lib/util";
 
 export const runtime = "nodejs";
@@ -17,9 +16,8 @@ function ip(req: NextRequest): string {
 
 const dataISO = /^\d{4}-\d{2}-\d{2}$/;
 
-// Consulta preço e disponibilidade REAIS no Facility para uma acomodação e
-// período. Usado pelo formulário de reserva para mostrar o valor ao vivo. O
-// token do Facility fica só no servidor — nunca vai para o navegador.
+// Preço e disponibilidade para o formulário. O site apenas repassa ao CRM, que
+// é quem fala com o Facility (o token nunca sai do CRM).
 export async function POST(req: NextRequest) {
   const allowed = await permitido(`dispo:${ip(req)}`, 30, 60_000);
   if (!allowed) {
@@ -44,11 +42,6 @@ export async function POST(req: NextRequest) {
   const acomodacaoId = String(corpo.acomodacaoId ?? "");
   const checkin = String(corpo.checkin ?? "");
   const checkout = String(corpo.checkout ?? "");
-  const adultos = Math.max(1, Math.min(20, Number(corpo.adultos) || 1));
-  const criancas = Math.max(0, Math.min(20, Number(corpo.criancas) || 0));
-  const bebes = Math.max(0, Math.min(20, Number(corpo.bebes) || 0));
-  const trailer = corpo.trailer === true;
-
   if (!acomodacaoPorId(acomodacaoId)) {
     return NextResponse.json({ ok: false, erro: "Acomodação inválida." }, { status: 400 });
   }
@@ -56,43 +49,21 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: false, erro: "Datas inválidas." }, { status: 400 });
   }
 
-  const catId = categoriaDoSite(acomodacaoId, trailer);
-  const noites = diferencaNoites(checkin, checkout);
+  const r = await buscarDisponibilidadeCRM({
+    acomodacaoId,
+    checkin,
+    checkout,
+    adultos: Math.max(1, Math.min(20, Number(corpo.adultos) || 1)),
+    criancas: Math.max(0, Math.min(20, Number(corpo.criancas) || 0)),
+    bebes: Math.max(0, Math.min(20, Number(corpo.bebes) || 0)),
+    trailer: corpo.trailer === true,
+  });
 
-  try {
-    const categorias = await consultarDisponibilidade({
-      checkin,
-      checkout,
-      numeroAdultos: adultos,
-      numeroCriancas1: criancas,
-      numeroCriancas2: bebes,
-    });
-    const categoria = categorias.find((c) => c.id === catId);
-    if (!categoria) {
-      return NextResponse.json({ ok: true, disponivel: 0, esgotado: true });
-    }
-    const tarifa = escolherTarifa(categoria, acomodacaoId, noites);
-    if (!tarifa) {
-      return NextResponse.json({
-        ok: true,
-        disponivel: categoria.disponibilidade,
-        esgotado: categoria.disponibilidade <= 0,
-        semTarifa: true,
-      });
-    }
-    return NextResponse.json({
-      ok: true,
-      disponivel: categoria.disponibilidade,
-      esgotado: categoria.disponibilidade <= 0,
-      valorTotal: valorTotalTarifa(tarifa), // reais
-      noites,
-      tarifaNome: tarifa.nome,
-    });
-  } catch (e) {
-    console.error("[Facility] disponibilidade:", e);
+  if (!r.ok && !r.esgotado) {
     return NextResponse.json(
-      { ok: false, erro: "Não foi possível consultar agora. Tente novamente." },
+      { ok: false, erro: r.erro ?? "Não foi possível consultar agora." },
       { status: 502 },
     );
   }
+  return NextResponse.json(r);
 }

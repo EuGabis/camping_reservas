@@ -2,18 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { reservaSchema } from "@/lib/validacao";
 import { acomodacaoPorId, diferencaNoites } from "@/lib/precos";
-import {
-  consultarDisponibilidade,
-  lancarReserva,
-  dataParaFacility,
-  type IntegranteFacility,
-} from "@/lib/facility";
-import { categoriaDoSite, escolherTarifa, valorTotalTarifa } from "@/lib/facility-map";
-import { gerarCodigo, permitido, formatarCPF, formatarTelefone } from "@/lib/util";
-import { encaminharReservaCRM } from "@/lib/crm";
+import { gerarCodigo, permitido } from "@/lib/util";
+import { enviarReservaCRM } from "@/lib/crm";
 
 export const runtime = "nodejs";
-export const maxDuration = 25; // Facility + CRM (com retry)
+export const maxDuration = 25;
 
 function ip(req: NextRequest): string {
   return (
@@ -21,15 +14,6 @@ function ip(req: NextRequest): string {
     req.headers.get("x-real-ip") ||
     "desconhecido"
   );
-}
-
-// Monta a lista de integrantes (todos além do responsável/cabeça da reserva).
-function montarIntegrantes(adultos: number, criancas: number, bebes: number): IntegranteFacility[] {
-  const lista: IntegranteFacility[] = [];
-  for (let i = 1; i < adultos; i++) lista.push({ nomeCompleto: "Acompanhante", categoriaPessoa: "ADULTO" });
-  for (let i = 0; i < criancas; i++) lista.push({ nomeCompleto: "Criança (6 a 12)", categoriaPessoa: "CRIANCA1" });
-  for (let i = 0; i < bebes; i++) lista.push({ nomeCompleto: "Criança (até 5)", categoriaPessoa: "CRIANCA2" });
-  return lista;
 }
 
 export async function POST(req: NextRequest) {
@@ -66,84 +50,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: false, erro: "Acomodação inválida." }, { status: 400 });
   }
 
-  const noites = diferencaNoites(d.checkin, d.checkout);
-  const codigo = gerarCodigo();
-
-  // 1) Consulta o Facility (fonte oficial de tarifa e disponibilidade).
-  let valorTotalReais = 0;
-  let tarifaId: number | null = null;
-  let disponivel: number | null = null;
-  try {
-    const categorias = await consultarDisponibilidade({
-      checkin: d.checkin,
-      checkout: d.checkout,
-      numeroAdultos: d.adultos,
-      numeroCriancas1: d.criancas,
-      numeroCriancas2: d.bebes,
-    });
-    const catId = categoriaDoSite(d.acomodacaoId, d.trailer);
-    const categoria = categorias.find((c) => c.id === catId);
-    if (categoria) {
-      disponivel = categoria.disponibilidade;
-      const tarifa = escolherTarifa(categoria, d.acomodacaoId, noites);
-      if (tarifa) {
-        tarifaId = tarifa.id;
-        valorTotalReais = valorTotalTarifa(tarifa);
-      }
-    }
-  } catch (e) {
-    console.error("[Facility] consulta na reserva falhou:", e);
-  }
-
-  // Sem disponibilidade confirmada: barra o pedido.
-  if (disponivel !== null && disponivel <= 0) {
-    return NextResponse.json(
-      { ok: false, erro: "Esta acomodação está esgotada para as datas escolhidas." },
-      { status: 409 },
-    );
-  }
-
-  const valorCentavos = Math.round(valorTotalReais * 100);
-
-  // 2) Lança a reserva no Facility (pendente, sem pagamento) quando houver tarifa.
-  let facilityOk = false;
-  if (tarifaId !== null) {
-    try {
-      const r = await lancarReserva({
-        identificador: codigo,
-        inicio: dataParaFacility(d.checkin),
-        fim: dataParaFacility(d.checkout),
-        acomodacoes: [
-          {
-            valorTotal: valorTotalReais,
-            valorDescontoTotal: 0,
-            idtarifa: tarifaId,
-            confirmada: false,
-            responsavel: {
-              nomeCompleto: d.nome,
-              cpf: formatarCPF(d.cpf),
-              telefone: formatarTelefone(d.telefone),
-              email: d.email,
-            },
-            integrantes: montarIntegrantes(d.adultos, d.criancas, d.bebes),
-            pagamentos: [],
-          },
-        ],
-      });
-      facilityOk = r.ok;
-      if (!r.ok) console.error("[Facility] lancarReserva recusou:", r.status, r.mensagem);
-    } catch (e) {
-      console.error("[Facility] lancarReserva erro:", e);
-    }
-  }
-
-  // 3) Encaminha ao CRM (funil de atendimento) — mantido em paralelo.
-  const crm = await encaminharReservaCRM({
+  // 1) Envia ao CRM, que lança no Facility e ingere no funil.
+  const crm = await enviarReservaCRM({
     nome: d.nome,
     email: d.email,
     telefone: d.telefone,
-    modalidade: acomodacao.modalidade,
+    cpf: d.cpf,
+    acomodacaoId: d.acomodacaoId,
     acomodacaoNome: acomodacao.nome,
+    modalidade: acomodacao.modalidade,
     checkin: d.checkin,
     checkout: d.checkout,
     adultos: d.adultos,
@@ -151,10 +66,19 @@ export async function POST(req: NextRequest) {
     bebes: d.bebes,
     trailer: d.trailer,
     observacoes: d.observacoes || null,
-    valorEstimado: valorCentavos,
   });
 
-  // 4) Grava também no banco local (best-effort).
+  if (crm.esgotado) {
+    return NextResponse.json(
+      { ok: false, erro: "Esta acomodação está esgotada para as datas escolhidas." },
+      { status: 409 },
+    );
+  }
+
+  const codigo = crm.codigo ?? gerarCodigo();
+  const valorCentavos = crm.valorEstimado ?? 0;
+
+  // 2) Grava também no banco local (best-effort; legado do site).
   let salvouLocal = false;
   try {
     await prisma.reserva.create({
@@ -167,7 +91,7 @@ export async function POST(req: NextRequest) {
         acomodacao: acomodacao.nome,
         checkin: new Date(d.checkin + "T00:00:00Z"),
         checkout: new Date(d.checkout + "T00:00:00Z"),
-        noites,
+        noites: diferencaNoites(d.checkin, d.checkout),
         adultos: d.adultos,
         criancas: d.criancas,
         bebes: d.bebes,
@@ -181,13 +105,12 @@ export async function POST(req: NextRequest) {
     console.error("Reserva não salva no banco local (seguindo):", e);
   }
 
-  // Só é erro se NENHUM destino registrou o pedido.
-  if (!facilityOk && !crm.ok && !salvouLocal) {
+  if (!crm.ok && !salvouLocal) {
     return NextResponse.json(
       { ok: false, erro: "Não foi possível registrar o pedido agora. Tente pelo WhatsApp." },
       { status: 500 },
     );
   }
 
-  return NextResponse.json({ ok: true, codigo, valorEstimado: valorCentavos, facility: facilityOk });
+  return NextResponse.json({ ok: true, codigo, valorEstimado: valorCentavos, facility: crm.facility });
 }
