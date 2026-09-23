@@ -1,14 +1,21 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   ACOMODACOES,
   MODALIDADES,
   ModalidadeId,
-  calcularEstimativa,
   centavosParaReais,
 } from "@/lib/precos";
 import { CONTATO } from "@/lib/conteudo";
+
+// Preço e disponibilidade vêm do Facility (via /api/disponibilidade), ao vivo.
+type Preco =
+  | { estado: "vazio" }
+  | { estado: "carregando" }
+  | { estado: "erro"; msg: string }
+  | { estado: "esgotado" }
+  | { estado: "ok"; valorCentavos: number; noites: number; disponivel: number };
 
 const hojeISO = () => {
   const d = new Date();
@@ -32,6 +39,7 @@ interface Estado {
   bebes: number;
   trailer: boolean;
   nome: string;
+  cpf: string;
   email: string;
   telefone: string;
   observacoes: string;
@@ -67,12 +75,22 @@ const inicial: Estado = {
   bebes: 0,
   trailer: false,
   nome: "",
+  cpf: "",
   email: "",
   telefone: "",
   observacoes: "",
   hospedes: [],
   site: "",
 };
+
+// Máscara simples de CPF: 000.000.000-00.
+function mascararCPF(v: string): string {
+  const d = v.replace(/\D/g, "").slice(0, 11);
+  return d
+    .replace(/^(\d{3})(\d)/, "$1.$2")
+    .replace(/^(\d{3})\.(\d{3})(\d)/, "$1.$2.$3")
+    .replace(/\.(\d{3})(\d)/, ".$1-$2");
+}
 
 export default function FormularioReserva({
   acomodacaoInicial,
@@ -128,18 +146,62 @@ export default function FormularioReserva({
     [s.modalidade]
   );
 
-  const estimativa = useMemo(() => {
-    if (!s.checkin || !s.checkout) return null;
-    return calcularEstimativa({
-      acomodacaoId: s.acomodacaoId,
-      checkin: s.checkin,
-      checkout: s.checkout,
-      adultos: s.adultos,
-      criancas: s.criancas,
-      bebes: s.bebes,
-      trailer: s.trailer,
-    });
-  }, [s]);
+  const [preco, setPreco] = useState<Preco>({ estado: "vazio" });
+
+  // Consulta preço e disponibilidade reais no Facility, com debounce, sempre que
+  // datas, acomodação ou número de pessoas mudam.
+  useEffect(() => {
+    if (!s.checkin || !s.checkout || new Date(s.checkout) <= new Date(s.checkin)) {
+      setPreco({ estado: "vazio" });
+      return;
+    }
+    const ctrl = new AbortController();
+    setPreco({ estado: "carregando" });
+    const t = setTimeout(async () => {
+      try {
+        const resp = await fetch("/api/disponibilidade", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            acomodacaoId: s.acomodacaoId,
+            checkin: s.checkin,
+            checkout: s.checkout,
+            adultos: s.adultos,
+            criancas: s.criancas,
+            bebes: s.bebes,
+            trailer: s.trailer,
+          }),
+          signal: ctrl.signal,
+        });
+        const j = await resp.json();
+        if (!resp.ok || !j.ok) {
+          setPreco({ estado: "erro", msg: j.erro ?? "Não foi possível consultar agora." });
+          return;
+        }
+        if (j.esgotado) {
+          setPreco({ estado: "esgotado" });
+          return;
+        }
+        if (j.semTarifa || typeof j.valorTotal !== "number") {
+          setPreco({ estado: "erro", msg: "Sem tarifa para este período. Fale pelo WhatsApp." });
+          return;
+        }
+        setPreco({
+          estado: "ok",
+          valorCentavos: Math.round(j.valorTotal * 100),
+          noites: j.noites ?? 0,
+          disponivel: j.disponivel ?? 0,
+        });
+      } catch (e) {
+        if ((e as Error).name === "AbortError") return;
+        setPreco({ estado: "erro", msg: "Falha de conexão ao consultar." });
+      }
+    }, 500);
+    return () => {
+      ctrl.abort();
+      clearTimeout(t);
+    };
+  }, [s.acomodacaoId, s.checkin, s.checkout, s.adultos, s.criancas, s.bebes, s.trailer]);
 
   function trocarModalidade(m: ModalidadeId) {
     const primeira = ACOMODACOES.find((a) => a.modalidade === m);
@@ -175,8 +237,16 @@ export default function FormularioReserva({
       setErro("Escolha as datas de entrada e saída.");
       return;
     }
-    if (estimativa && !estimativa.ok) {
-      setErro(estimativa.erro ?? "Verifique os dados informados.");
+    if (s.cpf.replace(/\D/g, "").length !== 11) {
+      setErro("Informe um CPF válido (11 dígitos).");
+      return;
+    }
+    if (preco.estado === "esgotado") {
+      setErro("Esta acomodação está esgotada para as datas escolhidas.");
+      return;
+    }
+    if (preco.estado === "carregando") {
+      setErro("Aguarde a consulta de disponibilidade terminar.");
       return;
     }
 
@@ -199,7 +269,7 @@ export default function FormularioReserva({
 
     setEnviando(true);
     try {
-      const totalCliente = estimativa?.total ?? 0;
+      const totalCliente = preco.estado === "ok" ? preco.valorCentavos : 0;
       const sinalCliente = Math.round(totalCliente / 2);
       const obsPagamento = `Pagamento: sinal 50% = ${centavosParaReais(
         sinalCliente
@@ -230,6 +300,7 @@ export default function FormularioReserva({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           nome: s.nome,
+          cpf: s.cpf,
           email: s.email,
           telefone: s.telefone,
           acomodacaoId: s.acomodacaoId,
@@ -250,7 +321,10 @@ export default function FormularioReserva({
       }
       setEtapa("pix");
       setPixCopiado(false);
-      setSucesso({ codigo: dados.codigo, valor: dados.valorEstimado ?? estimativa?.total ?? 0 });
+      setSucesso({
+        codigo: dados.codigo,
+        valor: dados.valorEstimado ?? (preco.estado === "ok" ? preco.valorCentavos : 0),
+      });
     } catch {
       setErro("Falha de conexão. Tente novamente ou fale pelo WhatsApp.");
     } finally {
@@ -567,15 +641,28 @@ export default function FormularioReserva({
         </div>
       </div>
 
-      <div className="mb-4">
-        <label className={rotulo}>E-mail</label>
-        <input
-          type="email"
-          className={campo}
-          value={s.email}
-          onChange={(e) => atualizar("email", e.target.value)}
-          required
-        />
+      <div className="mb-4 grid gap-3 sm:grid-cols-2">
+        <div>
+          <label className={rotulo}>CPF do responsável</label>
+          <input
+            className={campo}
+            value={s.cpf}
+            onChange={(e) => atualizar("cpf", mascararCPF(e.target.value))}
+            placeholder="000.000.000-00"
+            inputMode="numeric"
+            required
+          />
+        </div>
+        <div>
+          <label className={rotulo}>E-mail</label>
+          <input
+            type="email"
+            className={campo}
+            value={s.email}
+            onChange={(e) => atualizar("email", e.target.value)}
+            required
+          />
+        </div>
       </div>
 
       {numHospedesExtras > 0 && (
@@ -651,26 +738,41 @@ export default function FormularioReserva({
         />
       </div>
 
-      {estimativa && estimativa.ok && (
+      {preco.estado === "carregando" && (
+        <p className="mb-5 rounded-xl bg-areia-100 px-4 py-3 text-sm text-tinta-suave">
+          Consultando disponibilidade e valor…
+        </p>
+      )}
+
+      {preco.estado === "ok" && (
         <div className="mb-5 rounded-xl bg-mata-800 p-4 text-areia-50">
           <div className="flex items-baseline justify-between">
-            <span className="text-sm text-areia-200">Valor estimado</span>
+            <span className="text-sm text-areia-200">Valor total</span>
             <span className="font-display text-2xl font-semibold">
-              {centavosParaReais(estimativa.total)}
+              {centavosParaReais(preco.valorCentavos)}
             </span>
           </div>
           <p className="mt-1 text-xs text-areia-300">
-            {estimativa.noites} noite(s) · {estimativa.detalhes.join(" · ")}
+            {preco.noites} noite(s)
+            {preco.disponivel > 0 && preco.disponivel <= 3
+              ? ` · últimas ${preco.disponivel} unidade(s)`
+              : ""}
           </p>
           <p className="mt-2 text-xs text-areia-300">
-            Estimativa sujeita à confirmação de disponibilidade pela equipe.
+            Valor e disponibilidade em tempo real. A reserva é confirmada após o pagamento de 50%.
           </p>
         </div>
       )}
 
-      {estimativa && !estimativa.ok && (
+      {preco.estado === "esgotado" && (
         <p className="mb-4 rounded-lg bg-terra-500/10 px-3 py-2 text-sm text-terra-600">
-          {estimativa.erro}
+          Esgotado para as datas escolhidas. Tente outras datas ou fale pelo WhatsApp.
+        </p>
+      )}
+
+      {preco.estado === "erro" && (
+        <p className="mb-4 rounded-lg bg-terra-500/10 px-3 py-2 text-sm text-terra-600">
+          {preco.msg}
         </p>
       )}
 
@@ -682,7 +784,7 @@ export default function FormularioReserva({
 
       <button
         type="submit"
-        disabled={enviando}
+        disabled={enviando || preco.estado === "esgotado" || preco.estado === "carregando"}
         className="w-full rounded-full bg-terra-500 px-6 py-3.5 font-semibold text-white shadow transition-transform hover:scale-[1.01] hover:bg-terra-600 disabled:cursor-not-allowed disabled:opacity-60"
       >
         {enviando ? "Enviando…" : "Enviar pedido de reserva"}

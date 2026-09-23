@@ -15,6 +15,12 @@ export const reservaSchema = z
       .max(30)
       .regex(/^[0-9()+\-\s]+$/, "Telefone inválido."),
     acomodacaoId: z.enum(idsAcomodacao),
+    // CPF do responsável: exigido pelo Facility. Guardamos só os 11 dígitos.
+    cpf: z
+      .string()
+      .trim()
+      .transform((s) => s.replace(/\D/g, ""))
+      .refine((d) => d.length === 11, "CPF inválido."),
     checkin: z.string().regex(dataISO, "Data de entrada inválida."),
     checkout: z.string().regex(dataISO, "Data de saída inválida."),
     adultos: z.coerce.number().int().min(1).max(20),

@@ -4,11 +4,9 @@ import Cabecalho from "@/components/Cabecalho";
 import Rodape from "@/components/Rodape";
 import BotaoWhatsapp from "@/components/BotaoWhatsapp";
 import MotorReserva from "@/components/MotorReserva";
-import {
-  ACOMODACOES,
-  calcularEstimativa,
-  centavosParaReais,
-} from "@/lib/precos";
+import { ACOMODACOES, centavosParaReais, diferencaNoites } from "@/lib/precos";
+import { consultarDisponibilidade } from "@/lib/facility";
+import { categoriaDoSite, escolherTarifa, valorTotalTarifa } from "@/lib/facility-map";
 import {
   fotosCamping,
   fotosBarracas,
@@ -50,23 +48,49 @@ export default async function DisponibilidadePage({
   const bebes = Math.max(0, inteiro(sp.bebes, 0));
 
   const valido = Boolean(checkin && checkout && checkout > checkin);
+  const noites = valido ? diferencaNoites(checkin, checkout) : 0;
 
-  const resultados = valido
-    ? ACOMODACOES.map((a) => ({
-        a,
-        est: calcularEstimativa({
-          acomodacaoId: a.id,
-          checkin,
-          checkout,
-          adultos,
-          criancas,
-          bebes,
-          trailer: false,
-        }),
-      }))
-    : [];
-
-  const noites = resultados[0]?.est.noites ?? 0;
+  // Disponibilidade e preços REAIS do Facility (uma consulta traz todas as
+  // categorias). Em falha, mostramos um aviso em vez de derrubar a página.
+  type Resultado = {
+    a: (typeof ACOMODACOES)[number];
+    ok: boolean;
+    totalCentavos: number;
+    disponivel: number;
+  };
+  let resultados: Resultado[] = [];
+  let erroFacility = false;
+  if (valido) {
+    try {
+      const cats = await consultarDisponibilidade({
+        checkin,
+        checkout,
+        numeroAdultos: adultos,
+        numeroCriancas1: criancas,
+        numeroCriancas2: bebes,
+      });
+      resultados = ACOMODACOES.map((a) => {
+        const catId = categoriaDoSite(a.id, false);
+        const categoria = cats.find((c) => c.id === catId);
+        if (!categoria || categoria.disponibilidade <= 0) {
+          return { a, ok: false, totalCentavos: 0, disponivel: categoria?.disponibilidade ?? 0 };
+        }
+        const tarifa = escolherTarifa(categoria, a.id, noites);
+        if (!tarifa) {
+          return { a, ok: false, totalCentavos: 0, disponivel: categoria.disponibilidade };
+        }
+        return {
+          a,
+          ok: true,
+          totalCentavos: Math.round(valorTotalTarifa(tarifa) * 100),
+          disponivel: categoria.disponibilidade,
+        };
+      });
+    } catch (e) {
+      console.error("[Facility] disponibilidade page:", e);
+      erroFacility = true;
+    }
+  }
   const queryReserva = new URLSearchParams({
     checkin,
     checkout,
@@ -115,9 +139,14 @@ export default async function DisponibilidadePage({
               Escolha as datas de entrada e saída acima e clique em{" "}
               <strong>Consultar valores</strong>.
             </p>
+          ) : erroFacility ? (
+            <p className="mt-8 rounded-2xl border border-areia-200 bg-white p-6 text-center text-tinta-suave">
+              Não foi possível consultar a disponibilidade agora. Tente novamente em instantes
+              ou fale com a gente pelo WhatsApp.
+            </p>
           ) : (
             <div className="mt-8 grid gap-5 pb-16 sm:grid-cols-2 lg:grid-cols-3">
-              {resultados.map(({ a, est }) => {
+              {resultados.map(({ a, ok, totalCentavos, disponivel }) => {
                 const foto = capa(a.id);
                 return (
                   <article
@@ -139,13 +168,16 @@ export default async function DisponibilidadePage({
 
                       <div className="mt-4 flex-1" />
 
-                      {est.ok ? (
+                      {ok ? (
                         <>
                           <p className="text-xs text-tinta-suave">
                             {noites} noite(s) · {adultos} adulto(s)
+                            {disponivel > 0 && disponivel <= 3
+                              ? ` · últimas ${disponivel} unidade(s)`
+                              : ""}
                           </p>
                           <p className="font-display text-2xl font-semibold text-mata-700">
-                            {centavosParaReais(est.total)}
+                            {centavosParaReais(totalCentavos)}
                           </p>
                           <Link
                             href={`/reservar/${a.id}?${queryReserva}`}
@@ -159,7 +191,9 @@ export default async function DisponibilidadePage({
                       ) : (
                         <>
                           <p className="rounded-lg bg-areia-100 px-3 py-2 text-xs text-tinta-suave">
-                            {est.erro}
+                            {disponivel <= 0
+                              ? "Esgotado para estas datas."
+                              : "Sem tarifa para este período."}
                           </p>
                           <Link
                             href={`/reservar/${a.id}?${queryReserva}`}

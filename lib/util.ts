@@ -56,3 +56,18 @@ export function formatarData(d: Date | string): string {
   const data = typeof d === "string" ? new Date(d) : d;
   return data.toLocaleDateString("pt-BR", { timeZone: "UTC" });
 }
+
+// Formata 11 dígitos como CPF: 000.000.000-00 (formato exigido pelo Facility).
+export function formatarCPF(digitos: string): string {
+  const d = digitos.replace(/\D/g, "").slice(0, 11);
+  if (d.length !== 11) return digitos;
+  return `${d.slice(0, 3)}.${d.slice(3, 6)}.${d.slice(6, 9)}-${d.slice(9)}`;
+}
+
+// Formata um telefone brasileiro como (DD) 99999-9999, quando possível.
+export function formatarTelefone(tel: string): string {
+  const d = tel.replace(/\D/g, "").replace(/^55/, "");
+  if (d.length === 11) return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
+  if (d.length === 10) return `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`;
+  return tel;
+}
